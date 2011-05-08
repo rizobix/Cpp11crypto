@@ -1,0 +1,55 @@
+///////////////////////////////////////////////////////////
+	Cpp11crypto - a cryptographic library in C++11
+///////////////////////////////////////////////////////////
+
+This must be seen more as an experiment.
+
+I/We will be trying to deploy a crypto library written using
+C++11 as a way to:
+      - Practice as much C++11 new features as possible
+      - Be as strictly FIPS compatible as possible
+      - Use boost libraries as much as possible
+      - Demonstrate that C++ is really efficient, as much
+      	as, or even more than, C
+
+Compilation and testing requieres, as a minimum, g++ v4.6.
+Other compiler versions to be determined.
+
+Anyone is welcome, but take note of two conditions:
+
+- Copyright will be attributed to all contributors
+- Copyright will be ruled by LGPLv3
+  	   
+
+-- COPYRIGHT NOTICE FOR THE WHOLE PROJECT
+ 	   
+    Cpp11crypto is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    Cpp11crypto is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-- COPYRIGHT NOTE TO BE INCLUDED IN ALL SOURCE FILES
+
+    This file is part of Cpp11crypto.
+
+    Cpp11crypto is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Cpp11crypto is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+
