@@ -1,0 +1,7 @@
+# Style used in Cpp11crypto
+
+# General
+--style=gnu
+
+# Particular details
+

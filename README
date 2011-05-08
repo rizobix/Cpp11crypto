@@ -12,14 +12,20 @@ C++11 as a way to:
       - Demonstrate that C++ is really efficient, as much
       	as, or even more than, C
 
-Compilation and testing requieres, as a minimum, g++ v4.6.
+Compilation and testing requieres, as a minimum, g++ v4.6 (http://gcc.gnu.org).
 Other compiler versions to be determined.
+
+Documentation using Doxygen (http://www.stack.nl/~dimitri/doxygen).
+Exact minimum version to be determined, using 1.4.7.
+
+Code indentation maintained with astyle (http://astyle.sourceforge.net).
+Exact minimum version to be determined, using 2.01.
+Settings found in 'astylerc' file.
 
 Anyone is welcome, but take note of two conditions:
 
 - Copyright will be attributed to all contributors
-- Copyright will be ruled by LGPLv3
-  	   
+- Copyright will be ruled by LGPLv3  	   
 
 -- COPYRIGHT NOTICE FOR THE WHOLE PROJECT
  	   
