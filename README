@@ -15,8 +15,12 @@ C++11 as a way to:
 Compilation and testing requieres, as a minimum, g++ v4.6 (http://gcc.gnu.org).
 Other compiler versions to be determined.
 
-Documentation using Doxygen (http://www.stack.nl/~dimitri/doxygen).
+Code documentation using Doxygen (http://www.stack.nl/~dimitri/doxygen).
 Exact minimum version to be determined, using 1.4.7.
+
+Other documentation using LaTex. Using LiveTex, as it is available both in Windows
+and GNU/Linux. iMac, To be determined. Editing woth TexMaker, available in all
+three OS's.
 
 Code indentation maintained with astyle (http://astyle.sourceforge.net).
 Exact minimum version to be determined, using 2.01.
