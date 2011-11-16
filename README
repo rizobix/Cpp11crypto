@@ -12,8 +12,18 @@ C++11 as a way to:
       - Demonstrate that C++ is really efficient, as much
       	as, or even more than, C
 
-Compilation and testing requieres, as a minimum, g++ v4.6 (http://gcc.gnu.org).
+Compiler used: g++ v4.7, under development (http://gcc.gnu.org).
 Other compiler versions to be determined.
+
+Boost libraries used: 1.48.0. Binary libraries used: test.
+Other library versions to be determined.
+Pending: Check which boost headers used are already included in C++1 version used.
+
+Printing in testing performed via FastFormat (www.fastformat.org)
+Exact minimum version to be determined, using 0.7.1-alpha-3.
+Underlying library used: StlSoft (ww.stlsoft.org)
+Exact minimum version to be determined, using 0.7.1-alpha-3.
+NOTE: Some patching required to compile under latest gcc versions!
 
 Code documentation using Doxygen (http://www.stack.nl/~dimitri/doxygen).
 Exact minimum version to be determined, using 1.4.7.
