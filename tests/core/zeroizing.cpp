@@ -29,6 +29,9 @@
 #include <vector>
 #include <algorithm>
 #include <cstdint>
+#include <string>
+#include <ios>
+#include <fastformat/fastformat.hpp>
 
 #include "../utils/test_allocator.hpp"
 
@@ -38,16 +41,22 @@ namespace {
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_test, T, zeroizing_list )
 {
-  //typedef core::allocator<test_allocator<T> > allocator;
-  typedef utils::test_allocator<T> allocator;
-  allocator alloc;
-  std::vector<T,allocator> data(alloc);
+  fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
+
+  typedef core::allocator<T,utils::test_allocator> allocator;
+  std::vector<T,allocator> data;
   boost::random::mt19937 generator;
   boost::random::uniform_int_distribution<T> distributor;
   std::for_each(boost::counting_iterator<unsigned>(1u),
 		boost::counting_iterator<unsigned>(1000u),
-		[&](unsigned){data.push_back(distributor(generator));});
-  BOOST_CHECK( alloc.is_clean() );
+		[&](unsigned n){
+		  data.push_back(distributor(generator));
+		});
+  data.resize(0);
+  data.shrink_to_fit();
+  BOOST_CHECK( data.get_allocator().is_clean() );
+
+  fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
 }
 
 

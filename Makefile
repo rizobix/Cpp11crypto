@@ -26,6 +26,8 @@ FASTFORMAT_ROOT=../fastformat-0.7.1-alpha-3
 
 CXX_OPTIONS = -std=c++0x
 
+HEADERS=include/core/zeroizing.hpp
+
 .PHONY: all test
 
 all:
@@ -35,13 +37,15 @@ clean:
 	@rm $(TEST_PROGRAM)
 
 TEST_SOURCES = tests/test.cpp tests/core/zeroizing.cpp
+TEST_HEADERS = tests/utils/test_allocator.hpp
 TEST_PROGRAM = tests/test
-TEST_INCLUDES = -Iinclude -I$(BOOST_FOLDER) -I$(STLSOFT) -I$(FASTFORMAT_ROOT)/include
-TEST_LIBRARIES = -L$(BOOST_LIBRARY_FOLDER) -lboost_unit_test_framework
-TEST_OPTIONS = $(CXX_OPTIONS) -g -D BOOST_TEST_DYN_LINK
+TEST_INCLUDES = -Iinclude -I$(BOOST_FOLDER) -I$(STLSOFT)/include -I$(FASTFORMAT_ROOT)/include
+TEST_LIBRARIES = -L$(BOOST_LIBRARY_FOLDER) -lboost_unit_test_framework -L$(FASTFORMAT_ROOT)/lib -lfastformat.0.core.gcc46
+TEST_OPTIONS = $(CXX_OPTIONS) -g -D BOOST_TEST_DYN_LINK -D FASTFORMAT_USE_VOID_POINTERS_CONVERSION_SHIMS
 
 
-$(TEST_PROGRAM): $(TEST_SOURCES)
+
+$(TEST_PROGRAM): $(TEST_SOURCES) $(TEST_HEADERS) $(HEADERS)
 	$(CXX) $(TEST_OPTIONS) $(TEST_INCLUDES) $(TEST_SOURCES) $(TEST_LIBRARIES) -o $(TEST_PROGRAM)
 
 test: $(TEST_PROGRAM)

@@ -33,17 +33,33 @@ namespace core {
   // To be used by STL templates instead of default (or any other) allocator
   // subsitutted allocator should be fed as parameter to the template
   template <class T, template <class U> class underlying_allocator=std::allocator>
+  class allocator;
+
+  template <template <class U> class underlying_allocator> class allocator<void,underlying_allocator> {
+  public:
+    typedef void* pointer;
+    typedef const void* const_pointer;
+    typedef void value_type;
+    template <class U> struct rebind { typedef allocator<U,underlying_allocator> other; };
+  };
+
+  template <class T, template <class U> class underlying_allocator>
   class allocator : public underlying_allocator<T> {
     // All members inherited, save for constructors and deallocator
   private:
     typedef underlying_allocator<T> base_allocator;
   public:
-    allocator() noexcept;
-    allocator(const allocator&) noexcept;
-    template <class U> allocator(const allocator<U>&) noexcept;
+    allocator() noexcept : base_allocator() {}
+    allocator(const allocator& other) noexcept : base_allocator(other) {}
+    template <class U> allocator(const allocator<U,underlying_allocator>&) noexcept;
     
+    template <class U> struct rebind { typedef allocator<U,underlying_allocator> other; };
+
     void deallocate(typename base_allocator::pointer p,
-		    typename base_allocator::size_type n) noexcept;
+		    typename base_allocator::size_type n) noexcept {
+      std::uninitialized_fill_n(p,n,T());
+      base_allocator::deallocate(p,n);
+    }
   };
   
 

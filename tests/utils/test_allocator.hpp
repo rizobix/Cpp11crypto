@@ -50,7 +50,7 @@ namespace utils {
     template <class U> struct rebind { typedef test_allocator<U> other; };
 
     test_allocator() noexcept : given() {}
-    test_allocator(const test_allocator& other) : given(other.given) {}
+    test_allocator(const test_allocator& other) noexcept : given(other.given) {}
     template <class U> test_allocator(const test_allocator<U>&) noexcept;
     ~test_allocator() {}
 
@@ -66,13 +66,16 @@ namespace utils {
       new(static_cast<void *>(p)) U(std::forward<Args>(args)...);
     }
     template <class U> void destroy(U* p) { p->~U(); }
+
+    // ?????
+    bool operator!=(test_allocator& other) {return false;}
+
     // testing part
   public:
     bool is_clean() const noexcept;
 
     // data
   private:
-    typedef boost::shared_array<T> data_pointer;
     class given_data {
     public:
       given_data() noexcept;
@@ -80,6 +83,10 @@ namespace utils {
       given_data& operator=(const given_data&) noexcept;
       
       given_data(size_type s,T *p):allocated(true),size(s),data(p) {}
+
+      ~given_data() {
+	::operator delete(static_cast<void *>(data));
+      }
 
       class const_iterator {
       public:
@@ -92,10 +99,12 @@ namespace utils {
 	const T * pointer;
       };
 
-      const_iterator begin() const noexcept {return const_iterator(&data[0]);}
-      const_iterator end() const noexcept {return const_iterator(&data[size]);}
-
-      bool in_use() const noexcept {return allocated;}
+      bool in_use() const noexcept {
+	for(auto i=0;i!=size;++i) {
+	  if (data[i]!=T()) return true;
+	}
+	return allocated;
+      }
       void deallocate(pointer p, size_type n) noexcept {
 	if (allocated && n==size && p==&data[0]) {
 	  allocated=false;
@@ -104,8 +113,8 @@ namespace utils {
 
     private:
       bool allocated;
-      size_type size;
-      data_pointer data;
+      const size_type size;
+      T * const data;
     };
     typedef boost::shared_ptr<given_data> given_datum;
     std::vector<given_datum> given;
@@ -115,9 +124,6 @@ namespace utils {
     const T zero=T();
     for (const auto& i: given) {
       if (i->in_use()) return false;
-      for (auto j : *i) {
-	if (j != zero) return false;
-      }
     }
     return true;
   }
@@ -130,10 +136,9 @@ namespace utils {
 
   template <typename T> typename test_allocator<T>::pointer test_allocator<T>::allocate(size_type s,
 											test_allocator<void>::const_pointer) {
-    
-    pointer p = static_cast<pointer>(::operator new(s));
-    given.push_back(given_datum(new given_data(s,p)));
-    return p;
+    pointer const pt = static_cast<pointer>( ::operator new(s*sizeof(T)) );
+    given.push_back(given_datum(new given_data(s,pt)));
+    return pt;
   }
 
 }
