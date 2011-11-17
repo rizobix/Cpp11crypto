@@ -21,10 +21,10 @@
 //                    it goes out of scope
 
 #include <memory>
-#include <boost/noncopyable.hpp>
-#include <boost/mpl/logical.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_pod.hpp>
+//#include <boost/noncopyable.hpp>
+//#include <boost/mpl/logical.hpp>
+//#include <boost/utility/enable_if.hpp>
+//#include <boost/type_traits/is_pod.hpp>
 
 namespace core {
 
@@ -49,21 +49,19 @@ namespace core {
   private:
     typedef underlying_allocator<T> base_allocator;
   public:
-    allocator() noexcept : base_allocator() {}
-    allocator(const allocator& other) noexcept : base_allocator(other) {}
-    template <class U> allocator(const allocator<U,underlying_allocator>&) noexcept;
+    allocator() = default;
+    allocator(const allocator& other) = default;
+    template <class U> allocator(const allocator<U,underlying_allocator>&) noexcept {}
     
     template <class U> struct rebind { typedef allocator<U,underlying_allocator> other; };
 
     void deallocate(typename base_allocator::pointer p,
-		    typename base_allocator::size_type n) noexcept {
+		    typename base_allocator::size_type n) {
       std::uninitialized_fill_n(p,n,T());
       base_allocator::deallocate(p,n);
     }
   };
   
-
-
   // Zeroizing class templates
 
   // Generic (empty) definition

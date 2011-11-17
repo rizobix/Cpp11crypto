@@ -23,7 +23,6 @@
 #include <vector>
 #include <algorithm>
 #include <boost/shared_ptr.hpp>
-#include <boost/shared_array.hpp>
 
 namespace utils {
   template <typename T> class test_allocator;
@@ -49,26 +48,23 @@ namespace utils {
 
     template <class U> struct rebind { typedef test_allocator<U> other; };
 
-    test_allocator() noexcept : given() {}
-    test_allocator(const test_allocator& other) noexcept : given(other.given) {}
-    template <class U> test_allocator(const test_allocator<U>&) noexcept;
-    ~test_allocator() {}
+    test_allocator() = default;
+    test_allocator(const test_allocator& other) = default;
+    ~test_allocator() = default;
 
-    pointer address(reference x) const noexcept;
-    const_pointer address(const_reference x) const noexcept;
 
     pointer allocate(size_type, test_allocator<void>::const_pointer hint = 0);
     void deallocate(pointer p, size_type n) noexcept;
 
-    size_type max_size() const noexcept {return std::allocator<T>().max_size();}
+    size_type max_size() const noexcept(noexcept(std::allocator<T>().max_size)) {return std::allocator<T>().max_size();}
 
     template<class U, class... Args> void construct(U* p, Args&&... args) {
       new(static_cast<void *>(p)) U(std::forward<Args>(args)...);
     }
     template <class U> void destroy(U* p) { p->~U(); }
 
-    // ?????
-    bool operator!=(test_allocator& other) {return false;}
+    // ????? GCC requires it!
+    bool operator!=(test_allocator& other) noexcept {return false;}
 
     // testing part
   public:
@@ -116,9 +112,13 @@ namespace utils {
       const size_type size;
       T * const data;
     };
+  private:
     typedef boost::shared_ptr<given_data> given_datum;
-    std::vector<given_datum> given;
+    typedef std::vector<given_datum> data_container;
+    static data_container given;
   };
+
+  template <typename T> typename test_allocator<T>::data_container test_allocator<T>::given;
 
   template <typename T> bool test_allocator<T>::is_clean() const noexcept {
     const T zero=T();

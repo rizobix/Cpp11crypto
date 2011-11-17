@@ -27,6 +27,7 @@
 #include <boost/mpl/list.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 #include <vector>
+#include <list>
 #include <algorithm>
 #include <cstdint>
 #include <string>
@@ -39,7 +40,7 @@ namespace {
   typedef boost::mpl::list<std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t> zeroizing_list;
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_test, T, zeroizing_list )
+BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list )
 {
   fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
 
@@ -54,6 +55,25 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_test, T, zeroizing_list )
 		});
   data.resize(0);
   data.shrink_to_fit();
+  BOOST_CHECK( data.get_allocator().is_clean() );
+
+  fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list )
+{
+  fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
+
+  typedef core::allocator<T,utils::test_allocator> allocator;
+  std::list<T,allocator> data;
+  boost::random::mt19937 generator;
+  boost::random::uniform_int_distribution<T> distributor;
+  std::for_each(boost::counting_iterator<unsigned>(1u),
+		boost::counting_iterator<unsigned>(1000u),
+		[&](unsigned n){
+		  data.push_back(distributor(generator));
+		});
+  data.resize(0);
   BOOST_CHECK( data.get_allocator().is_clean() );
 
   fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
