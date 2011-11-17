@@ -35,7 +35,7 @@ namespace core {
   template <class T, template <class U> class underlying_allocator=std::allocator>
   class allocator;
 
-  template <template <class U> class underlying_allocator> class allocator<void,underlying_allocator> {
+  template <template <class> class underlying_allocator> class allocator<void,underlying_allocator> {
   public:
     typedef void* pointer;
     typedef const void* const_pointer;
@@ -43,7 +43,7 @@ namespace core {
     template <class U> struct rebind { typedef allocator<U,underlying_allocator> other; };
   };
 
-  template <class T, template <class U> class underlying_allocator>
+  template <class T, template <class> class underlying_allocator>
   class allocator : public underlying_allocator<T> {
     // All members inherited, save for constructors and deallocator
   private:
