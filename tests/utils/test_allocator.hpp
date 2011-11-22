@@ -97,9 +97,11 @@ namespace utils {
 
       bool in_use() const noexcept {
 	for(auto i=0;i!=size;++i) {
-	  if (data[i]!=T()) return true;
+	  if (data[i]!=T()) {
+	    return true;
+	  }
 	}
-	return allocated;
+	return false;
       }
       void deallocate(pointer p, size_type n) noexcept {
 	if (allocated && n==size && p==&data[0]) {

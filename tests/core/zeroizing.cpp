@@ -44,17 +44,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list )
 {
   fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
 
-  typedef core::allocator<T,utils::test_allocator> allocator;
+  typedef core::allocator<T,core::policies::DestructorDoesZero,core::policies::DeallocatorDoesNotZero,core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
   std::vector<T,allocator> data;
   boost::random::mt19937 generator;
   boost::random::uniform_int_distribution<T> distributor;
   std::for_each(boost::counting_iterator<unsigned>(1u),
-		boost::counting_iterator<unsigned>(1000u),
+		boost::counting_iterator<unsigned>(10u),//00u),
 		[&](unsigned n){
 		  data.push_back(distributor(generator));
 		});
   data.resize(0);
+  std::cout<< "Check before deallocation" << std::endl;
+  BOOST_CHECK( data.get_allocator().is_clean() );
   data.shrink_to_fit();
+  std::cout<< "Check after deallocation" << std::endl;
   BOOST_CHECK( data.get_allocator().is_clean() );
 
   fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
@@ -64,7 +67,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list )
 {
   fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
 
-  typedef core::allocator<T,utils::test_allocator> allocator;
+  typedef core::allocator<T,core::policies::DestructorDoesZero,core::policies::DeallocatorDoesNotZero,core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
   std::list<T,allocator> data;
   boost::random::mt19937 generator;
   boost::random::uniform_int_distribution<T> distributor;
@@ -74,10 +77,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list )
 		  data.push_back(distributor(generator));
 		});
   data.resize(0);
+  std::cout<< "Check after deallocation" << std::endl;
   BOOST_CHECK( data.get_allocator().is_clean() );
 
   fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
-}
+  }
 
 
 

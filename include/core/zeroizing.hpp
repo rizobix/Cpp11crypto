@@ -20,30 +20,49 @@
 // core/zeroize.hpp - Templates to create data that 'zeroizes' whenever
 //                    it goes out of scope
 
+#include <cstring>
 #include <memory>
-//#include <boost/noncopyable.hpp>
-//#include <boost/mpl/logical.hpp>
-//#include <boost/utility/enable_if.hpp>
-//#include <boost/type_traits/is_pod.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 namespace core {
 
-  // Zeroizing policies
+
+  namespace policies {
+    // Zeroizing helper classes
+
+    struct AllocatorDoesNotZero {};
+    struct AllocatorDoesZero {};
+
+    struct DeallocatorDoesNotZero {};
+    struct DeallocatorDoesZero {};
+
+    struct DestructorDoesNotZero {};
+    struct DestructorDoesZero {};
+  }
+    
+
+
+  // Zeroizing class templates
 
   // To be used by STL templates instead of default (or any other) allocator
   // subsitutted allocator should be fed as parameter to the template
-  template <class T, template <class U> class underlying_allocator=std::allocator>
-  class allocator;
+  template <class T,
+	    class DestructorPolicy=policies::DestructorDoesZero,
+	    class DeallocatorPolicy=policies::DeallocatorDoesNotZero, 
+	    class AllocatorPolicy=policies::AllocatorDoesNotZero, 
+	    template <class> class underlying_allocator=std::allocator
+	    > class allocator;
 
-  template <template <class> class underlying_allocator> class allocator<void,underlying_allocator> {
+  template <class DestructorPolicy, class DeallocatorPolicy, class AllocatorPolicy, template <class> class underlying_allocator>
+  class allocator<void, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy, underlying_allocator> {
   public:
     typedef void* pointer;
     typedef const void* const_pointer;
     typedef void value_type;
-    template <class U> struct rebind { typedef allocator<U,underlying_allocator> other; };
+    template <class U> struct rebind { typedef allocator<U, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy,underlying_allocator> other; };
   };
 
-  template <class T, template <class> class underlying_allocator>
+  template <class T, class DestructorPolicy, class DeallocatorPolicy, class AllocatorPolicy, template <class> class underlying_allocator>
   class allocator : public underlying_allocator<T> {
     // All members inherited, save for constructors and deallocator
   private:
@@ -51,51 +70,54 @@ namespace core {
   public:
     allocator() = default;
     allocator(const allocator& other) = default;
-    template <class U> allocator(const allocator<U,underlying_allocator>&) noexcept {}
+    template <class U> allocator(const allocator<U, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy, underlying_allocator>&) noexcept {}
     
-    template <class U> struct rebind { typedef allocator<U,underlying_allocator> other; };
+    template <class U> struct rebind { typedef allocator<U, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy, underlying_allocator> other; };
+
+    template <class U> void destroy(U * p) noexcept {
+      static_assert(noexcept(base_allocator::destroy),"Destructors should not throw");
+      base_allocator::destroy(p);
+      if (boost::is_same<DestructorPolicy,policies::DestructorDoesZero>::value) {
+	if (nullptr != p) {
+	  std::memset(p,0,sizeof *p);
+	}
+      }
+    }
+
+    typename base_allocator::pointer allocate( typename base_allocator::size_type n, allocator<void>::const_pointer hint = 0) {
+      typename base_allocator::pointer p=base_allocator::allocate(n,hint);
+      if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
+	std::memset(p,0,n*sizeof *p);
+      }
+      
+    }
+
 
     void deallocate(typename base_allocator::pointer p,
 		    typename base_allocator::size_type n) {
-      std::uninitialized_fill_n(p,n,T());
+      if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value) {
+	std::memset(p,0,n*sizeof *p);
+      }
       base_allocator::deallocate(p,n);
     }
+
   };
   
-  // Zeroizing class templates
-
-  // Generic (empty) definition
-  template <typename T, typename Enable = void >
-  class zeroizing;
-
-  // Specialization for arithmetic (char,int,float) types
-  // template <typename T, boost::enable_if<boost::is_arithmetic<T> > >
-  // class zeroizing : private boost::noncopyable{
-  // public:
-  //   zeroizing():value() {}
-  //   explicit zeroizing(const T v):value(v) {}
-  //   ~zeroizing() {value=T();}
-  //   operator T() const {return value;} 
-  // private:
-  //   T value;
-  // };
-
-  // Specialization for struct and array types (ToBeTested!)
-  // template <typename T,
-  // 	    boost::enable_if<
-  // 	      boost::mpl::and_ <boost::is_pod<T>,
-  // 				boost::not_<is_arithmetic<T> >,
-  // 				boost::not_<is_pointer<T> > > >::type >
-  // class zeroizing : private boost::noncopyable{
-  // public:
-  //   zeroizing():value() {}
-  //   explicit zeroizing(T&& v):value() {}
-  //   explicit zeroizing(const T& v):value() {}
-  //   ~zeroizing() {value=T();}
-  //   operator const T& () const {return value;} 
-  // private:
-  //   T value;
-  // };
+  // Zeroizing base templated class
+  template <class DeallocatorPolicy=policies::DeallocatorDoesZero, 
+	    class AllocatorPolicy=policies::AllocatorDoesNotZero>
+  class ZeroizingBase {
+  protected:
+    ZeroizingBase()=default;
+    ZeroizingBase(const ZeroizingBase&)=default;
+    ZeroizingBase& operator=(const ZeroizingBase&)=default;
+    ~ZeroizingBase()=default;
+  public:
+    static void *operator new(std::size_t size);
+    static void operator delete(void *p,std::size_t size);
+    static void *operator new[](std::size_t size);
+    static void operator delete[](void *p,std::size_t size);
+  };
 
     
 }
