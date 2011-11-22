@@ -13,8 +13,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with Cpp11crypto.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License with Cpp11crypto.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
 // tests/core/zeroizing.cpp - Tests core/zeroize.hpp
@@ -33,6 +32,7 @@
 #include <string>
 #include <ios>
 #include <fastformat/fastformat.hpp>
+#include <boost/smart_ptr.hpp>
 
 #include "../utils/test_allocator.hpp"
 
@@ -86,28 +86,27 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list )
 namespace {
   class SimpleDerivation : public core::ZeroizingBase<>{
   };
-  typedef boost::mpl::list<SimpleDerivation/*,DualDerivation,DiamondDerivation,ArrayDerivation*/> zeroizing_derived_list;
+  class DualDerivation : public core::ZeroizingBase<>,SimpleDerivation {
+  };
+  class VirtualDerivation : public virtual core::ZeroizingBase<>{
+  };
+  class DiamondDerivation : public VirtualDerivation,virtual core::ZeroizingBase<> {
+  };
+  class ArrayDerivation  {
+  public:
+    ArrayDerivation():pointer(new core::ZeroizingBase<>[16]) {}
+  private:
+    boost::scoped_array<core::ZeroizingBase<> > pointer;
+  };
+  typedef boost::mpl::list<SimpleDerivation,DualDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_base_class, T, zeroizing_derived_list )
 {
   fastformat::fmtln(std::cout,"Zeroizing base class derivation test on {0} starts...", typeid(T).name());
-
-  /*  typedef core::allocator<T,core::policies::DestructorDoesZero,core::policies::DeallocatorDoesNotZero,core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
-  std::list<T,allocator> data;
-  boost::random::mt19937 generator;
-  boost::random::uniform_int_distribution<T> distributor;
-  std::for_each(boost::counting_iterator<unsigned>(1u),
-		boost::counting_iterator<unsigned>(1000u),
-		[&](unsigned n){
-		  data.push_back(distributor(generator));
-		});
-  data.resize(0);
-  std::cout<< "Check after deallocation" << std::endl;
-  BOOST_CHECK( data.get_allocator().is_clean() );*/
-
+  boost::scoped_ptr<T> pointer(new T());
   fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
-  }
+}
 
 
 

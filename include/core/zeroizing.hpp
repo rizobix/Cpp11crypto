@@ -113,10 +113,31 @@ namespace core {
     ZeroizingBase& operator=(const ZeroizingBase&)=default;
     ~ZeroizingBase()=default;
   public:
-    static void *operator new(std::size_t size);
-    static void operator delete(void *p,std::size_t size);
-    static void *operator new[](std::size_t size);
-    static void operator delete[](void *p,std::size_t size);
+    static void *operator new(std::size_t size) {
+      void * p= ::operator new(size);
+      if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
+	std::memset(p,0,size);
+      }      
+    }
+    static void operator delete(void *p,std::size_t size) {
+      if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value) {
+	std::memset(p,0,size);
+      }      
+      ::operator delete(p);
+   }
+
+    static void *operator new[](std::size_t size) {
+      void * p= ::operator new[](size);
+      if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
+	std::memset(p,0,size);
+      }      
+    }
+    static void operator delete[](void *p,std::size_t size) {
+      if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value) {
+	std::memset(p,0,size);
+      }      
+      ::operator delete[](p);
+   }
   };
 
     
