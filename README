@@ -13,7 +13,7 @@ C++11 as a way to:
       	as, or even more than, C
 
 Compiler used: g++ v4.7, under development (http://gcc.gnu.org).
-Other compiler versions to be determined.
+Other compiler versions to be determined. NOTE: Once multiarch has been put to work in Debian and Ubuntu distributions, I have not been able to compile gcc. So, for now, I will be using v4.6. So much for 'final' and 'override' keywords!
 
 Boost libraries used: 1.48.0. Binary libraries used: test.
 Other library versions to be determined.
@@ -26,10 +26,10 @@ Exact minimum version to be determined, using 0.7.1-alpha-3.
 NOTE: Some patching required to compile under latest gcc versions!
 
 Code documentation using Doxygen (http://www.stack.nl/~dimitri/doxygen).
-Exact minimum version to be determined, using 1.4.7.
+Exact minimum version to be determined, using 1.4.8.
 
 Other documentation using LaTex. Using LiveTex, as it is available both in Windows
-and GNU/Linux. iMac, To be determined. Editing woth TexMaker, available in all
+and GNU/Linux. iMac, To be determined. Editing with TexMaker, available in all
 three OS's.
 
 Code indentation maintained with astyle (http://astyle.sourceforge.net).
