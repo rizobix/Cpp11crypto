@@ -18,11 +18,11 @@
 ### Makefile
 ### Targets: all test
 
-BOOST_FOLDER ?= ../boost_1_48_0
+BOOST_FOLDER ?= ../boost
 BOOST_LIBRARY_FOLDER  = $(BOOST_FOLDER)/stage/lib
 
-STLSOFT=../stlsoft-1.9.109
-FASTFORMAT_ROOT=../fastformat-0.7.1-alpha-3
+STLSOFT ?= ../stlsoft
+FASTFORMAT_ROOT ?= ../fastformat
 
 CXX_OPTIONS = -std=c++0x
 
