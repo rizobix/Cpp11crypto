@@ -24,121 +24,147 @@
 #include <memory>
 #include <boost/type_traits/is_same.hpp>
 
-namespace core {
+namespace core
+{
 
 
-  namespace policies {
-    // Zeroizing helper classes
+namespace policies
+{
+// Zeroizing helper classes
 
-    struct AllocatorDoesNotZero {};
-    struct AllocatorDoesZero {};
+struct AllocatorDoesNotZero {};
+struct AllocatorDoesZero {};
 
-    struct DeallocatorDoesNotZero {};
-    struct DeallocatorDoesZero {};
+struct DeallocatorDoesNotZero {};
+struct DeallocatorDoesZero {};
 
-    struct DestructorDoesNotZero {};
-    struct DestructorDoesZero {};
-  }
-    
+struct DestructorDoesNotZero {};
+struct DestructorDoesZero {};
+}
 
 
-  // Zeroizing class templates
 
-  // To be used by STL templates instead of default (or any other) allocator
-  // subsitutted allocator should be fed as parameter to the template
-  template <class T,
-	    class DestructorPolicy=policies::DestructorDoesZero,
-	    class DeallocatorPolicy=policies::DeallocatorDoesNotZero, 
-	    class AllocatorPolicy=policies::AllocatorDoesNotZero, 
-	    template <class> class underlying_allocator=std::allocator
-	    > class allocator;
+// Zeroizing class templates
 
-  template <class DestructorPolicy, class DeallocatorPolicy, class AllocatorPolicy, template <class> class underlying_allocator>
-  class allocator<void, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy, underlying_allocator> {
-  public:
+// To be used by STL templates instead of default (or any other) allocator
+// subsitutted allocator should be fed as parameter to the template
+template <class T,
+         class DestructorPolicy=policies::DestructorDoesZero,
+         class DeallocatorPolicy=policies::DeallocatorDoesNotZero,
+         class AllocatorPolicy=policies::AllocatorDoesNotZero,
+         template <class> class underlying_allocator=std::allocator
+         > class allocator;
+
+template <class DestructorPolicy, class DeallocatorPolicy, class AllocatorPolicy, template <class> class underlying_allocator>
+class allocator<void, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy, underlying_allocator>
+{
+public:
     typedef void* pointer;
     typedef const void* const_pointer;
     typedef void value_type;
-    template <class U> struct rebind { typedef allocator<U, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy,underlying_allocator> other; };
-  };
+    template <class U> struct rebind
+    {
+        typedef allocator<U, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy,underlying_allocator> other;
+    };
+};
 
-  template <class T, class DestructorPolicy, class DeallocatorPolicy, class AllocatorPolicy, template <class> class underlying_allocator>
-  class allocator : public underlying_allocator<T> {
+template <class T, class DestructorPolicy, class DeallocatorPolicy, class AllocatorPolicy, template <class> class underlying_allocator>
+class allocator : public underlying_allocator<T>
+{
     // All members inherited, save for constructors and deallocator
-  private:
+private:
     typedef underlying_allocator<T> base_allocator;
-  public:
+public:
     allocator() = default;
     allocator(const allocator& other) = default;
     template <class U> allocator(const allocator<U, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy, underlying_allocator>&) noexcept {}
-    
-    template <class U> struct rebind { typedef allocator<U, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy, underlying_allocator> other; };
 
-    template <class U> void destroy(U * p) noexcept {
-      static_assert(noexcept(base_allocator::destroy),"Destructors should not throw");
-      base_allocator::destroy(p);
-      if (boost::is_same<DestructorPolicy,policies::DestructorDoesZero>::value) {
-	if (nullptr != p) {
-	  std::memset(p,0,sizeof *p);
-	}
-      }
+    template <class U> struct rebind
+    {
+        typedef allocator<U, DestructorPolicy, DeallocatorPolicy, AllocatorPolicy, underlying_allocator> other;
+    };
+
+    template <class U> void destroy(U * p) noexcept
+    {
+        static_assert(noexcept(base_allocator::destroy),"Destructors should not throw");
+        base_allocator::destroy(p);
+        if (boost::is_same<DestructorPolicy,policies::DestructorDoesZero>::value)
+            {
+                if (nullptr != p)
+                    {
+                        std::memset(p,0,sizeof *p);
+                    }
+            }
     }
 
-    typename base_allocator::pointer allocate( typename base_allocator::size_type n, allocator<void>::const_pointer hint = 0) {
-      typename base_allocator::pointer p=base_allocator::allocate(n,hint);
-      if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
-	std::memset(p,0,n*sizeof *p);
-      }
-      
+    typename base_allocator::pointer allocate( typename base_allocator::size_type n, allocator<void>::const_pointer hint = 0)
+    {
+        typename base_allocator::pointer p=base_allocator::allocate(n,hint);
+        if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value)
+            {
+                std::memset(p,0,n*sizeof *p);
+            }
+
     }
 
 
     void deallocate(typename base_allocator::pointer p,
-		    typename base_allocator::size_type n) {
-      if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value) {
-	std::memset(p,0,n*sizeof *p);
-      }
-      base_allocator::deallocate(p,n);
+                    typename base_allocator::size_type n)
+    {
+        if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value)
+            {
+                std::memset(p,0,n*sizeof *p);
+            }
+        base_allocator::deallocate(p,n);
     }
 
-  };
-  
-  // Zeroizing base templated class
-  template <class DeallocatorPolicy=policies::DeallocatorDoesZero, 
-	    class AllocatorPolicy=policies::AllocatorDoesNotZero>
-  class ZeroizingBase {
-  protected:
+};
+
+// Zeroizing base templated class
+template <class DeallocatorPolicy=policies::DeallocatorDoesZero,
+         class AllocatorPolicy=policies::AllocatorDoesNotZero>
+class ZeroizingBase
+{
+protected:
     ZeroizingBase()=default;
     ZeroizingBase(const ZeroizingBase&)=default;
     ZeroizingBase& operator=(const ZeroizingBase&)=default;
     ~ZeroizingBase()=default;
-  public:
-    static void *operator new(std::size_t size) {
-      void * p= ::operator new(size);
-      if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
-	std::memset(p,0,size);
-      }      
+public:
+    static void *operator new(std::size_t size)
+    {
+        void * p= ::operator new(size);
+        if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value)
+            {
+                std::memset(p,0,size);
+            }
     }
-    static void operator delete(void *p,std::size_t size) {
-      if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value) {
-	std::memset(p,0,size);
-      }      
-      ::operator delete(p);
-   }
-
-    static void *operator new[](std::size_t size) {
-      void * p= ::operator new[](size);
-      if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
-	std::memset(p,0,size);
-      }      
+    static void operator delete(void *p,std::size_t size)
+    {
+        if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value)
+            {
+                std::memset(p,0,size);
+            }
+        ::operator delete(p);
     }
-    static void operator delete[](void *p,std::size_t size) {
-      if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value) {
-	std::memset(p,0,size);
-      }      
-      ::operator delete[](p);
-   }
-  };
 
-    
+    static void *operator new[](std::size_t size)
+    {
+        void * p= ::operator new[](size);
+        if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value)
+            {
+                std::memset(p,0,size);
+            }
+    }
+    static void operator delete[](void *p,std::size_t size)
+    {
+        if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value)
+            {
+                std::memset(p,0,size);
+            }
+        ::operator delete[](p);
+    }
+};
+
+
 }
