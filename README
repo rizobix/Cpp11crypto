@@ -20,7 +20,7 @@ Other library versions to be determined.
 Pending: Check which boost headers used are already included in C++1 version used.
 
 Printing in testing performed via FastFormat (www.fastformat.org)
-Exact minimum version to be determined, using 0.7.1-alpha-6.
+Exact minimum version to be determined, using 0.7.1-alpha-6. Some patching required!
 Underlying library used: StlSoft (ww.stlsoft.org)
 Exact minimum version to be determined, using 1.9.111.
 NOTE: Some patching required to compile under latest gcc versions!
