@@ -1,5 +1,5 @@
 /**
-   Copyright 2011, Juan Antonio Zaratiegui Vallecillo
+   Copyright 2011-2012, Juan Antonio Zaratiegui Vallecillo
 
     This file is part of Cpp11crypto.
 
@@ -22,10 +22,23 @@
 
 #include <cstring>
 #include <memory>
+#include <algorithm>
 #include <boost/type_traits/is_same.hpp>
 
 namespace core
 {
+  namespace {
+    void do_zeroize(void * const start,const size_t len) {
+      const char * const pbegin=static_cast<const char *>(start);
+      const char * const pend = pbegin+len;
+    zero_phase:
+      memset(start,0,len);
+    verify_phase:
+      if (std::find_if(pbegin,pend,[](const char c){return 0!=c;})) {
+	goto zero_phase;
+      }
+    }
+  }
 
 
 namespace policies
@@ -92,7 +105,7 @@ public:
             {
                 if (nullptr != p)
                     {
-                        std::memset(p,0,sizeof *p);
+		      do_zeroize(p,sizeof *p);
                     }
             }
     }
@@ -102,7 +115,7 @@ public:
         typename base_allocator::pointer p=base_allocator::allocate(n,hint);
         if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value)
             {
-                std::memset(p,0,n*sizeof *p);
+	      do_zeroize(p,n);
             }
 
     }
@@ -113,7 +126,7 @@ public:
     {
         if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value)
             {
-                std::memset(p,0,n*sizeof *p);
+	      do_zeroize(p,n);
             }
         base_allocator::deallocate(p,n);
     }
@@ -136,14 +149,14 @@ public:
         void * p= ::operator new(size);
         if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value)
             {
-                std::memset(p,0,size);
+	      do_zeroize(p,size);
             }
     }
     static void operator delete(void *p,std::size_t size)
     {
         if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value)
             {
-                std::memset(p,0,size);
+	      do_zeroize(p,size);
             }
         ::operator delete(p);
     }
@@ -153,14 +166,14 @@ public:
         void * p= ::operator new[](size);
         if (boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value)
             {
-                std::memset(p,0,size);
+	      do_zeroize(p,size);
             }
     }
     static void operator delete[](void *p,std::size_t size)
     {
         if (boost::is_same<DeallocatorPolicy,policies::DeallocatorDoesZero>::value)
             {
-                std::memset(p,0,size);
+	      do_zeroize(p,size);
             }
         ::operator delete[](p);
     }
