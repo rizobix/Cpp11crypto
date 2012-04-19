@@ -18,17 +18,24 @@
 ### Makefile
 ### Targets: all test
 
+BASE_DIR=`pwd`
+
 BOOST_FOLDER ?= ../boost
 BOOST_LIBRARY_FOLDER  = $(BOOST_FOLDER)/stage/lib
 
 STLSOFT ?= ../stlsoft
 FASTFORMAT_ROOT ?= ../fastformat
+FASTFORMAT_GCC_VERSION ?= gcc48
+FASTFORMAT_COPIED_VERSION ?= gcc47
+FASTFORMAT_BUILD_ROOT ?= $(FASTFORMAT_ROOT)/build
+FASTFORMAT_BUILD_DIR ?= $(FASTFORMAT_BUILD_ROOT)/$(FASTFORMAT_GCC_VERSION).unix
+FASTFORMAT_COPIED_DIR ?= $(FASTFORMAT_BUILD_ROOT)/$(FASTFORMAT_COPIED_VERSION).unix
+FASTFORMAT_LIB ?= fastformat.0.core.$(FASTFORMAT_GCC_VERSION)
 
 CXX_OPTIONS = -std=c++0x
 
 HEADERS=include/core/zeroizing.hpp
-
-.PHONY: all test
+.PHONY: all test boost fastformat
 
 all:
 	@echo Nothing to do yet.
@@ -40,7 +47,7 @@ TEST_SOURCES = tests/test.cpp tests/core/zeroizing.cpp
 TEST_HEADERS = tests/utils/test_allocator.hpp
 TEST_PROGRAM = tests/test
 TEST_INCLUDES = -Iinclude -I$(BOOST_FOLDER) -I$(STLSOFT)/include -I$(FASTFORMAT_ROOT)/include
-TEST_LIBRARIES = -L$(BOOST_LIBRARY_FOLDER) -lboost_unit_test_framework -L$(FASTFORMAT_ROOT)/lib -lfastformat.0.core.gcc46
+TEST_LIBRARIES = -L$(BOOST_LIBRARY_FOLDER) -lboost_unit_test_framework -L$(FASTFORMAT_ROOT)/lib -l$(FASTFORMAT_LIB)
 TEST_OPTIONS = $(CXX_OPTIONS) -g -D BOOST_TEST_DYN_LINK -D FASTFORMAT_USE_VOID_POINTERS_CONVERSION_SHIMS
 
 
@@ -49,4 +56,16 @@ $(TEST_PROGRAM): $(TEST_SOURCES) $(TEST_HEADERS) $(HEADERS)
 	$(CXX) $(TEST_OPTIONS) $(TEST_INCLUDES) $(TEST_SOURCES) $(TEST_LIBRARIES) -o $(TEST_PROGRAM)
 
 test: $(TEST_PROGRAM)
-	LD_LIBRARY_PATH=$(BOOST_LIBRARY_FOLDER) $(TEST_PROGRAM)
+	LD_LIBRARY_PATH=$LD_LIBRARY_PATH):$(BOOST_LIBRARY_FOLDER) $(TEST_PROGRAM)
+
+# Build required boost libraries
+boost:
+	cd $(BOOST_FOLDER) && ./bootstrap.sh --with-libraries=test && ./b2
+
+# Patches and builds fastformat libraries
+fastformat: $(FASTFORMAT_BUILD_DIR)
+	cd $(FASTFORMAT_BUILD_DIR) && make build
+
+$(FASTFORMAT_BUILD_DIR):
+	cd $(FASTFORMAT_BUILD_ROOT) && cp -r $(FASTFORMAT_COPIED_DIR) $(FASTFORMAT_BUILD_DIR)
+	patch $(FASTFORMAT_BUILD_DIR)/makefile ff_patch
