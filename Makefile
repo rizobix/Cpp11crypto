@@ -20,11 +20,11 @@
 
 BASE_DIR=`pwd`
 
-BOOST_FOLDER ?= ../boost
+BOOST_FOLDER ?= $(BASE_DIR)/../boost
 BOOST_LIBRARY_FOLDER  = $(BOOST_FOLDER)/stage/lib
 
-STLSOFT ?= ../stlsoft
-FASTFORMAT_ROOT ?= ../fastformat
+STLSOFT ?= $(BASE_DIR)/../stlsoft
+FASTFORMAT_ROOT ?= $(BASE_DIR)/../fastformat
 FASTFORMAT_GCC_VERSION ?= gcc48
 FASTFORMAT_COPIED_VERSION ?= gcc47
 FASTFORMAT_BUILD_ROOT ?= $(FASTFORMAT_ROOT)/build
@@ -64,8 +64,8 @@ boost:
 
 # Patches and builds fastformat libraries
 fastformat: $(FASTFORMAT_BUILD_DIR)
-	cd $(FASTFORMAT_BUILD_DIR) && make build
+	cd $(FASTFORMAT_BUILD_DIR) && STLSOFT=$(STLSOFT) make build
 
 $(FASTFORMAT_BUILD_DIR):
-	cd $(FASTFORMAT_BUILD_ROOT) && cp -r $(FASTFORMAT_COPIED_DIR) $(FASTFORMAT_BUILD_DIR)
+	cp -r $(FASTFORMAT_COPIED_DIR) $(FASTFORMAT_BUILD_DIR)
 	patch $(FASTFORMAT_BUILD_DIR)/makefile ff_patch
