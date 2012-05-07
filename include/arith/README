@@ -1,0 +1,5 @@
+This directory will contain all arithmetic required for the rest of the crypto modules.
+
+- modulo n arithmetic: fast, crypto and compile-time
+- fixed length and variable length types and conversions
+
