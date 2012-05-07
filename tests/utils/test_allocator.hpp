@@ -19,6 +19,9 @@
 
 // tests/utils/test_allocator.cpp - Test helper template class
 
+#ifndef CPP11CRYPTO_TESTS_UTILS_TEST_ALLOCATOR_HPP
+#define CPP11CRYPTO_TESTS_UTILS_TEST_ALLOCATOR_HPP
+
 #include <memory>
 #include <vector>
 #include <algorithm>
@@ -174,3 +177,4 @@ namespace utils
   }
   
 }
+#endif // CPP11CRYPTO_TESTS_UTILS_TEST_ALLOCATOR_HPP

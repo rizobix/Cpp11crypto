@@ -18,7 +18,10 @@
 **/
 
 // core/zeroize.hpp - Templates to create data that 'zeroizes' whenever
-//                    it goes out of scope
+/                    it goes out of scope
+
+#ifndef CPP11CRYPTO_CORE_ZEROIZING_HPP
+#define CPP11CRYPTO_CORE_ZEROIZING_HPP
 
 #include <cstring>
 #include <memory>
@@ -161,3 +164,4 @@ public:
 
 }
 
+#endif // CPP11CRYPTO_CORE_ZEROIZING_HPP
