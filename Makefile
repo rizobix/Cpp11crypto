@@ -18,14 +18,14 @@
 ### Makefile
 ### Targets: all test
 
-BASE_DIR=`pwd`
+BASE_DIR:=$(shell pwd)
 
 BOOST_FOLDER ?= $(BASE_DIR)/../boost
 BOOST_LIBRARY_FOLDER  = $(BOOST_FOLDER)/stage/lib
 
 STLSOFT ?= $(BASE_DIR)/../stlsoft
 FASTFORMAT_ROOT ?= $(BASE_DIR)/../fastformat
-FASTFORMAT_GCC_VERSION ?= gcc48
+FASTFORMAT_GCC_VERSION ?= gcc47
 FASTFORMAT_COPIED_VERSION ?= gcc47
 FASTFORMAT_BUILD_ROOT ?= $(FASTFORMAT_ROOT)/build
 FASTFORMAT_BUILD_DIR ?= $(FASTFORMAT_BUILD_ROOT)/$(FASTFORMAT_GCC_VERSION).unix
@@ -41,7 +41,7 @@ all:
 	@echo Nothing to do yet.
 
 clean:
-	@rm $(TEST_PROGRAM)
+	@rm -f $(TEST_PROGRAM)
 
 TEST_SOURCES = tests/test.cpp tests/core/zeroizing.cpp
 TEST_HEADERS = tests/utils/test_allocator.hpp
@@ -56,7 +56,7 @@ $(TEST_PROGRAM): $(TEST_SOURCES) $(TEST_HEADERS) $(HEADERS)
 	$(CXX) $(TEST_OPTIONS) $(TEST_INCLUDES) $(TEST_SOURCES) $(TEST_LIBRARIES) -o $(TEST_PROGRAM)
 
 test: $(TEST_PROGRAM)
-	LD_LIBRARY_PATH=$LD_LIBRARY_PATH):$(BOOST_LIBRARY_FOLDER) $(TEST_PROGRAM)
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(BOOST_LIBRARY_FOLDER) $(TEST_PROGRAM)
 
 # Build required boost libraries
 boost:

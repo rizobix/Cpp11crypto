@@ -13,12 +13,14 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License with Cpp11crypto.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU General Public License with Cpp11crypto.
+   If not, see <http://www.gnu.org/licenses/>.
 **/
 
 // tests/core/zeroizing.cpp - Tests core/zeroize.hpp
 
 #include "core/zeroizing.hpp"
+
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -36,73 +38,77 @@
 
 #include "../utils/test_allocator.hpp"
 
-namespace tests {
-  namespace {
-    typedef boost::mpl::list<std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t> zeroizing_list;
-  }
+namespace cpp11crypto {
+  namespace tests {
+    namespace {
+      typedef boost::mpl::list<std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t> zeroizing_list;
+    }
 
-  BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list ) {
-    fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
+    BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list ) {
+      fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
 
-    typedef core::allocator<T,core::policies::DestructorDoesZero,core::policies::DeallocatorDoesNotZero,core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
-    std::vector<T,allocator> data;
-    boost::random::mt19937 generator;
-    boost::random::uniform_int_distribution<T> distributor;
-    std::for_each(boost::counting_iterator<unsigned>(1u),
-                  boost::counting_iterator<unsigned>(10u),//00u),
-                  [&](unsigned n)
-		  {
-		    data.push_back(distributor(generator));
-		  });
-    data.resize(0);
-    std::cout<< "Check before deallocation" << std::endl;
-    BOOST_CHECK( data.get_allocator().is_clean() );
-    data.shrink_to_fit();
-    std::cout<< "Check after deallocation" << std::endl;
-    BOOST_CHECK( data.get_allocator().is_clean() );
+      typedef core::allocator<T,core::policies::DestructorDoesZero,
+			      core::policies::DeallocatorDoesNotZero,
+			      core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
+      std::vector<T,allocator> data;
+      boost::random::mt19937 generator;
+      boost::random::uniform_int_distribution<T> distributor;
+      std::for_each(boost::counting_iterator<unsigned>(1u),
+		    boost::counting_iterator<unsigned>(10u),//00u),
+		    [&](unsigned n)
+		    {
+		      data.push_back(distributor(generator));
+		      std::cout << "d0@" << static_cast<const void *>(&data[0]) << std::endl;
+		    });
+      data.resize(0);
+      std::cout<< "Check before deallocation" << std::endl;
+      BOOST_CHECK( data.get_allocator().is_clean() );
+      data.shrink_to_fit();
+      std::cout<< "Check after deallocation" << std::endl;
+      BOOST_CHECK( data.get_allocator().is_clean() );
 
-    fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
-  }
+      fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
+    }
 
-  BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list ) {
-    fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
+    BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list ) {
+      fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
 
-    typedef core::allocator<T,core::policies::DestructorDoesZero,core::policies::DeallocatorDoesNotZero,core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
-    std::list<T,allocator> data;
-    boost::random::mt19937 generator;
-    boost::random::uniform_int_distribution<T> distributor;
-    std::for_each(boost::counting_iterator<unsigned>(1u),
-                  boost::counting_iterator<unsigned>(1000u),
-                  [&](unsigned n){data.push_back(distributor(generator));});
-    data.resize(0);
-    std::cout<< "Check after deallocation" << std::endl;
-    BOOST_CHECK( data.get_allocator().is_clean() );
+      typedef core::allocator<T,core::policies::DestructorDoesZero,core::policies::DeallocatorDoesNotZero,core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
+      std::list<T,allocator> data;
+      boost::random::mt19937 generator;
+      boost::random::uniform_int_distribution<T> distributor;
+      std::for_each(boost::counting_iterator<unsigned>(1u),
+		    boost::counting_iterator<unsigned>(1000u),
+		    [&](unsigned n){data.push_back(distributor(generator));});
+      data.resize(0);
+      std::cout<< "Check after deallocation" << std::endl;
+      BOOST_CHECK( data.get_allocator().is_clean() );
 
-    fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
-  }
+      fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
+    }
 
-  namespace {
-    class SimpleDerivation : public core::ZeroizingBase<> {};
-    class DualDerivation : public core::ZeroizingBase<>,SimpleDerivation {};
-    class VirtualDerivation : public virtual core::ZeroizingBase<> {};
-    class DiamondDerivation : public VirtualDerivation,virtual core::ZeroizingBase<> {};
-    class ArrayDerivation {
-    public:
-      ArrayDerivation():pointer(new core::ZeroizingBase<>[16]) {}
-    private:
-      boost::scoped_array<core::ZeroizingBase<> > pointer;
-    };
-    typedef boost::mpl::list<SimpleDerivation,DualDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
-  }
+    namespace {
+      class SimpleDerivation : public core::ZeroizingBase<> {};
+      class DualDerivation : public core::ZeroizingBase<>,SimpleDerivation {};
+      class VirtualDerivation : public virtual core::ZeroizingBase<> {};
+      class DiamondDerivation : public VirtualDerivation,virtual core::ZeroizingBase<> {};
+      class ArrayDerivation {
+      public:
+	ArrayDerivation():pointer(new core::ZeroizingBase<>[16]) {}
+      private:
+	boost::scoped_array<core::ZeroizingBase<> > pointer;
+      };
+      typedef boost::mpl::list<SimpleDerivation,DualDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
+    }
 
-  BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_base_class, T, zeroizing_derived_list ) {
-    fastformat::fmtln(std::cout,"Zeroizing base class derivation test on {0} starts...", typeid(T).name());
-    boost::scoped_ptr<T> pointer(new T());
-    fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
+    BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_base_class, T, zeroizing_derived_list ) {
+      fastformat::fmtln(std::cout,"Zeroizing base class derivation test on {0} starts...", typeid(T).name());
+      boost::scoped_ptr<T> pointer(new T());
+      fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
+    }
+
   }
 
 }
-
-
 
 

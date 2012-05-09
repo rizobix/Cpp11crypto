@@ -13,6 +13,7 @@ C++11 as a way to:
       	as, or even more than, C
 
 Compiler used: g++ v4.7 and v4.8, under development (http://gcc.gnu.org).
+(gcc48 not yet used with boost)
 Other compiler versions to be determined.
 
 Boost libraries used: 1.49.0. Binary libraries used: test.
