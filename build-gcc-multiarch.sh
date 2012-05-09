@@ -12,8 +12,9 @@ rm -rf $GCC_OBJECT_DIR
 mkdir -p $GCC_OBJECT_DIR
 pushd $GCC_OBJECT_DIR
 
+CONFIGURE_OPTIONS="--enable-languages=c,c++ --enable-targets=all --enable-build-with-cxx"
 
-LIBRARY_PATH=/usr/lib/$ARCH_NAME CPATH=/usr/include/$ARCH_NAME $GCC_SOURCE_DIR/configure --program-suffix=$SUFFIX --enable-languages=c,c++ --enable-targets=all CFLAGS_FOR_TARGET="$MULTIFLAGS"
+LIBRARY_PATH=/usr/lib/$ARCH_NAME CPATH=/usr/include/$ARCH_NAME $GCC_SOURCE_DIR/configure --program-suffix=$SUFFIX $CONFIGURE_OPTIONS CFLAGS_FOR_TARGET="$MULTIFLAGS"
 
 LIBRARY_PATH=/usr/lib/$ARCH_NAME CPATH=/usr/include/$ARCH_NAME make -j $NUM_PROCESSES BOOT_CFLAGS="$MULTIFLAGS"
 LIBRARY_PATH=/usr/lib/$ARCH_NAME CPATH=/usr/include/$ARCH_NAME sudo make -j $NUM_PROCESSES install-strip
