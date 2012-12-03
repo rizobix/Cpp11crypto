@@ -20,10 +20,10 @@ Other library versions to be determined.
 Pending: Check which boost headers used are already included in C++11 version used.
 
 Printing in testing performed via FastFormat (www.fastformat.org)
-Exact minimum version to be determined, using 0.7.1-alpha-7.
-NOTE: Some patching required to compile under gcc 4.8, included in ff_patch file.
+Exact minimum version to be determined, using 0.7.1-alpha-9.
+
 Underlying library used: StlSoft (www.stlsoft.org)
-Exact minimum version to be determined, using 1.9.112.
+Exact minimum version to be determined, using 1.9.116.
 
 AUxiliary library used for type printing: libcwd 1.0.4 (libcwd.sourceforge.net)
 
