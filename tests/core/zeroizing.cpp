@@ -35,6 +35,9 @@
 #include <ios>
 #include <fastformat/fastformat.hpp>
 #include <boost/smart_ptr.hpp>
+#include <boost/type_traits/remove_const.hpp>
+
+#include <libcwd/type_info.h>
 
 #include "../utils/test_allocator.hpp"
 
@@ -44,8 +47,19 @@ namespace cpp11crypto {
       typedef boost::mpl::list<std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t> zeroizing_list;
     }
 
+    const unsigned start=1u;
+    const unsigned end=5u; //1000u
+
+    template <typename F> void test_all(F f) {
+      std::for_each(boost::counting_iterator<boost::remove_const<decltype(start)>::type>(start),
+		    boost::counting_iterator<boost::remove_const<decltype(end)>::type>(end),
+		    f);
+    }
+
     BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list ) {
-      fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
+      fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", 
+			libcwd::type_info_of<T>().demangled_name(), // typeid(T).name(),
+			8*sizeof(T));
 
       typedef core::allocator<T,core::policies::DestructorDoesZero,
 			      core::policies::DeallocatorDoesNotZero,
@@ -53,13 +67,11 @@ namespace cpp11crypto {
       std::vector<T,allocator> data;
       boost::random::mt19937 generator;
       boost::random::uniform_int_distribution<T> distributor;
-      std::for_each(boost::counting_iterator<unsigned>(1u),
-		    boost::counting_iterator<unsigned>(10u),//00u),
-		    [&](unsigned n)
-		    {
-		      data.push_back(distributor(generator));
-		      std::cout << "d0@" << static_cast<const void *>(&data[0]) << std::endl;
-		    });
+      test_all( [&](unsigned n)
+		{
+		  data.push_back(distributor(generator));
+		  std::cout << "d0@" << static_cast<const void *>(&data[0]) << std::endl;
+		});
       data.resize(0);
       std::cout<< "Check before deallocation" << std::endl;
       BOOST_CHECK( data.get_allocator().is_clean() );
@@ -77,9 +89,7 @@ namespace cpp11crypto {
       std::list<T,allocator> data;
       boost::random::mt19937 generator;
       boost::random::uniform_int_distribution<T> distributor;
-      std::for_each(boost::counting_iterator<unsigned>(1u),
-		    boost::counting_iterator<unsigned>(1000u),
-		    [&](unsigned n){data.push_back(distributor(generator));});
+      test_all([&](unsigned n){data.push_back(distributor(generator));});
       data.resize(0);
       std::cout<< "Check after deallocation" << std::endl;
       BOOST_CHECK( data.get_allocator().is_clean() );
