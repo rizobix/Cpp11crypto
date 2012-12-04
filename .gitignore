@@ -2,5 +2,7 @@
 *.out
 *.o
 *.bak
+*core*
+
 doxygen/
 tests/test
