@@ -44,11 +44,12 @@
 namespace cpp11crypto {
   namespace tests {
     namespace {
+      //      typedef boost::mpl::list<std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t> zeroizing_list;
       typedef boost::mpl::list<std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t> zeroizing_list;
     }
 
     const unsigned start=1u;
-    const unsigned end=5u; //1000u
+    const unsigned end=2u; //1000u
 
     template <typename F> void test_all(F f) {
       std::for_each(boost::counting_iterator<boost::remove_const<decltype(start)>::type>(start),
@@ -70,6 +71,7 @@ namespace cpp11crypto {
       test_all( [&](unsigned n)
 		{
 		  data.push_back(distributor(generator));
+		  std::cout << "d_@" << static_cast<const void *>(&*data.begin()) << std::endl;
 		  std::cout << "d0@" << static_cast<const void *>(&data[0]) << std::endl;
 		});
       data.resize(0);
@@ -80,9 +82,9 @@ namespace cpp11crypto {
       BOOST_CHECK( data.get_allocator().is_clean() );
 
       fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
-    }
+      }
 
-    BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list ) {
+    /*  BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list ) {
       fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
 
       typedef core::allocator<T,core::policies::DestructorDoesZero,core::policies::DeallocatorDoesNotZero,core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
@@ -95,7 +97,7 @@ namespace cpp11crypto {
       BOOST_CHECK( data.get_allocator().is_clean() );
 
       fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
-    }
+      }
 
     namespace {
       class SimpleDerivation : public core::ZeroizingBase<> {};
@@ -116,7 +118,7 @@ namespace cpp11crypto {
       boost::scoped_ptr<T> pointer(new T());
       fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
     }
-
+    */
   }
 
 }

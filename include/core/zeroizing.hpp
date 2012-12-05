@@ -28,10 +28,14 @@
 #include <algorithm>
 #include <boost/type_traits/is_same.hpp>
 
+#include <libcwd/type_info.h>
+#include <iostream>
+
 namespace cpp11crypto {
   namespace core {
     namespace {
       void do_zeroize(void * const start,const size_t len) {
+	std::cout << " ... zeroizing@ " << start << ':' << len << std::endl;
 	const char * const pbegin=static_cast<const char *>(start);
 	const char * const pend = pbegin+len;
       zero_phase:
@@ -105,6 +109,8 @@ namespace cpp11crypto {
     };
 
     template <class U> void destroy(U * p) noexcept {
+      std::cout << libcwd::type_info_of<allocator>().demangled_name() << " on " << libcwd::type_info_of<U>().demangled_name()
+		<< " destroy @" << static_cast<const void *>(p) << std::endl;
       static_assert(noexcept(base_allocator::destroy),
 		    "Destructors should not throw");
       base_allocator::destroy(p);
@@ -120,6 +126,8 @@ namespace cpp11crypto {
     allocate( typename base_allocator::size_type n,
 	      allocator<void>::const_pointer hint = 0) {
       typename base_allocator::pointer p=base_allocator::allocate(n,hint);
+      std::cout << libcwd::type_info_of<allocator>().demangled_name() << " from " << libcwd::type_info_of<base_allocator>().demangled_name()
+		<< " allocate @" << static_cast<const void *>(p) << ':' << n << std::endl;
       if (::boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
 	do_zeroize(p,n);
       }
@@ -129,6 +137,8 @@ namespace cpp11crypto {
 
     void deallocate(typename base_allocator::pointer p,
 		    typename base_allocator::size_type n) {
+      std::cout << libcwd::type_info_of<allocator>().demangled_name()
+		<< " allocate @" << static_cast<const void *>(p) << ':' << n << std::endl;
       if (::boost::is_same<DeallocatorPolicy,
 			 policies::DeallocatorDoesZero>::value) {
 	do_zeroize(p,n);

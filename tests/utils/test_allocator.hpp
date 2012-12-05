@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <boost/shared_ptr.hpp>
 
+#include <libcwd/type_info.h>
 
 #include <iostream>
 
@@ -97,12 +98,12 @@ namespace cpp11crypto {
 
 	given_data(size_type s,T *p):allocated(true),size(s),data(p) {
 	  using namespace std;
-	  cout << "gd+ " << size <<'@' << static_cast<const void *>(data) << endl;
+	  cout << libcwd::type_info_of<given_data>().demangled_name() << ":gd+ " << size <<'@' << static_cast<const void *>(data) << endl;
 	}
 
 	~given_data() {
 	  using namespace std;
-	  cout << "gd- " << size <<'@' << static_cast<const void *>(data) << endl;
+	  cout << libcwd::type_info_of<given_data>().demangled_name() << ":gd- " << size <<'@' << static_cast<const void *>(data) << endl;
 	  ::operator delete(static_cast<void *>(data));
 	}
 
@@ -164,22 +165,22 @@ namespace cpp11crypto {
 
     template <typename T> void test_allocator<T>::deallocate(pointer p, size_type n) noexcept {
       using namespace std;
-      cout << "deallocate " << static_cast<const void *>(p)<< ',' << n << endl;
+      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":deallocate " << static_cast<const void *>(p)<< ',' << n << endl;
       for(auto& i: given) {
 	i->deallocate(p,n);
       }
-      cout << "deallocated " << static_cast<const void *>(p)<< ',' << n << endl;
+      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":deallocated " << static_cast<const void *>(p)<< ',' << n << endl;
     }
 
     template <typename T>
     typename test_allocator<T>::pointer test_allocator<T>::allocate(size_type s,test_allocator<void>::const_pointer) {
       using namespace std;
-      cout << "allocate " << s << endl;
+      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":allocate " << s << endl;
       pointer const pt = static_cast<pointer>( ::operator new(s*sizeof(T)) );
-      cout << "allocated@ " << static_cast<const void *>(pt) << endl;
+      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":allocated@ " << static_cast<const void *>(pt) << endl;
       given.push_back(given_datum(new given_data(s,pt)));
-      cout << "pushed = " << given.size() << endl;
-      cout << "returns = " << static_cast<const void *>(pt) << endl;
+      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":pushed = " << given.size() << endl;
+      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":returns = " << static_cast<const void *>(pt) << endl;
       return pt;
     }
 
