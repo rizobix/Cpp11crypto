@@ -32,7 +32,8 @@ FASTFORMAT_BUILD_DIR ?= $(FASTFORMAT_BUILD_ROOT)/$(FASTFORMAT_GCC_VERSION).unix
 FASTFORMAT_COPIED_DIR ?= $(FASTFORMAT_BUILD_ROOT)/$(FASTFORMAT_COPIED_VERSION).unix
 FASTFORMAT_LIB ?= fastformat.0.core.$(FASTFORMAT_GCC_VERSION)
 
-CXX_OPTIONS = -std=c++0x
+CXX_OPTIONS = -std=c++0x -Wall -Wextra -Wsuggest-attribute=pure -Wsuggest-attribute=const -Wsuggest-attribute=noreturn -pedantic -pedantic-errors -Wno-unused-parameter -Wno-unused-label
+# -Werror 
 
 HEADERS=include/core/zeroizing.hpp
 .PHONY: all test boost fastformat

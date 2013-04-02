@@ -104,7 +104,7 @@ namespace cpp11crypto {
 			AllocatorPolicy, underlying_allocator> other;
     };
 
-    template <class U> void destroy(U * p) noexcept {
+    template <class U> void destroy(U * const p) noexcept {
       static_assert(noexcept(base_allocator::destroy),
 		    "Destructors should not throw");
       base_allocator::destroy(p);
@@ -117,18 +117,18 @@ namespace cpp11crypto {
     }
 
     typename base_allocator::pointer
-    allocate( typename base_allocator::size_type n,
-	      allocator<void>::const_pointer hint = 0) {
-      typename base_allocator::pointer p=base_allocator::allocate(n,hint);
+    allocate( typename base_allocator::size_type const n,
+	      allocator<void>::const_pointer const hint = 0) {
+      typename base_allocator::pointer const p=base_allocator::allocate(n,hint);
       if (::boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
 	do_zeroize(p,n);
       }
-
+      return p;
     }
 
 
-    void deallocate(typename base_allocator::pointer p,
-		    typename base_allocator::size_type n) {
+    void deallocate(typename base_allocator::pointer const p,
+		    typename base_allocator::size_type const n) {
       if (::boost::is_same<DeallocatorPolicy,
 			 policies::DeallocatorDoesZero>::value) {
 	do_zeroize(p,n);
@@ -148,13 +148,14 @@ namespace cpp11crypto {
     ZeroizingBase& operator=(const ZeroizingBase&)=default;
     ~ZeroizingBase()=default;
   public:
-    static void *operator new(::std::size_t size) {
-      void * p= ::operator new(size);
+    static void *operator new(const ::std::size_t size) {
+      void * const p= ::operator new(size);
       if (::boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
 	do_zeroize(p,size);
       }
+      return p;
     }
-    static void operator delete(void *p,::std::size_t size) {
+    static void operator delete(void * const p,const ::std::size_t size) {
       if (::boost::is_same<DeallocatorPolicy,
 			 policies::DeallocatorDoesZero>::value) {
 	do_zeroize(p,size);
@@ -162,13 +163,14 @@ namespace cpp11crypto {
       ::operator delete(p);
     }
 
-    static void *operator new[](::std::size_t size) {
-      void * p= ::operator new[](size);
+    static void *operator new[](const ::std::size_t size) {
+      void * const p= ::operator new[](size);
       if (::boost::is_same<AllocatorPolicy,policies::AllocatorDoesZero>::value) {
 	do_zeroize(p,size);
       }
+      return p;
     }
-    static void operator delete[](void *p,::std::size_t size) {
+    static void operator delete[](void * const p,const ::std::size_t size) {
       if (::boost::is_same<DeallocatorPolicy,
 			 policies::DeallocatorDoesZero>::value) {
 	do_zeroize(p,size);

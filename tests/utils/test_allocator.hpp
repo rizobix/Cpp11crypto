@@ -1,5 +1,5 @@
 /**
-   Copyright 2011, Juan Antonio Zaratiegui Vallecillo
+   Copyright 2011-2013, Juan Antonio Zaratiegui Vallecillo
 
    This file is part of Cpp11crypto.
 
@@ -21,6 +21,9 @@
 
 #ifndef CPP11CRYPTO_TESTS_UTILS_TEST_ALLOCATOR_HPP
 #define CPP11CRYPTO_TESTS_UTILS_TEST_ALLOCATOR_HPP
+
+//#define DEBUG_ALLOCATIONS
+//#define DEBUG_ALLOCATION_POINTERS
 
 #include <memory>
 #include <vector>
@@ -96,15 +99,17 @@ namespace cpp11crypto {
 	given_data& operator=(const given_data&) noexcept;
 
 	given_data(size_type s,T *p):allocated(true),size(s),data(p) {
+#ifdef DEBUG_ALLOCATION_POINTERS
 	  using namespace std;
 	  cout << "gd+ " << size <<'@' << static_cast<const void *>(data) << endl;
+#endif //DEBUG_ALLOCATION_POINTERS
 	}
 
 	~given_data() {
-	  using namespace std;
-	  cout << "gd- " << size <<'@' << static_cast<const void *>(data) << endl;
 	  ::operator delete(static_cast<void *>(data));
 	}
+	
+	const T * get() const {return data;}
 
 	class const_iterator {
 	public:
@@ -137,7 +142,7 @@ namespace cpp11crypto {
 
     template <typename T>
     bool test_allocator<T>::given_data::in_use() const noexcept {
-      for(auto i=0; i!=size; ++i) {
+      for(size_type i=0; i!=size; ++i) {
 	if (data[i]!=T())	{
 	  return true;
 	}
@@ -149,41 +154,66 @@ namespace cpp11crypto {
     void test_allocator<T>::given_data::deallocate(pointer p, size_type n) noexcept {
       if (allocated && n==size && p==&data[0]) {
 	allocated=false;
+#ifdef DEBUG_ALLOCATION_POINTERS
+	  using namespace std;
+	  cout << "gd- " << size <<'@' << static_cast<const void *>(data) << endl;
+#endif //DEBUG_ALLOCATION_POINTERS
       }
     }
 
     template <typename T> typename test_allocator<T>::data_container test_allocator<T>::given;
 
     template <typename T> bool test_allocator<T>::is_clean() const noexcept {
-      const T zero=T();
       for (const auto& i: given) {
-	if (i->in_use()) return false;
+	if (i->in_use()) {
+	  using namespace std;
+	  cout << " Still used @ " << static_cast<const void *>(i->get()) << endl;
+	  return false;
+	}
       }
       return true;
     }
 
     template <typename T> void test_allocator<T>::deallocate(pointer p, size_type n) noexcept {
+#ifdef DEBUG_ALLOCATIONS
       using namespace std;
       cout << "deallocate " << static_cast<const void *>(p)<< ',' << n << endl;
+#endif //DEBUG_ALLOCATIONS
       for(auto& i: given) {
 	i->deallocate(p,n);
       }
+#ifdef DEBUG_ALLOCATIONS
       cout << "deallocated " << static_cast<const void *>(p)<< ',' << n << endl;
+#endif //DEBUG_ALLOCATIONS
     }
 
     template <typename T>
     typename test_allocator<T>::pointer test_allocator<T>::allocate(size_type s,test_allocator<void>::const_pointer) {
+#ifdef DEBUG_ALLOCATIONS
       using namespace std;
       cout << "allocate " << s << endl;
+#endif //DEBUG_ALLOCATIONS
       pointer const pt = static_cast<pointer>( ::operator new(s*sizeof(T)) );
+#ifdef DEBUG_ALLOCATIONS
       cout << "allocated@ " << static_cast<const void *>(pt) << endl;
+#endif //DEBUG_ALLOCATIONS
       given.push_back(given_datum(new given_data(s,pt)));
+#ifdef DEBUG_ALLOCATIONS
       cout << "pushed = " << given.size() << endl;
       cout << "returns = " << static_cast<const void *>(pt) << endl;
+#endif //DEBUG_ALLOCATIONS
       return pt;
     }
 
   }
 }
+
+#ifdef DEBUG_ALLOCATIONS
+#undef DEBUG_ALLOCATIONS
+#endif //DEBUG_ALLOCATIONS
+#ifdef DEBUG_ALLOCATION_POINTERS
+#undef DEBUG_ALLOCATION_POINTERS
+#endif //DEBUG_ALLOCATION_POINTERS
+
 
 #endif // CPP11CRYPTO_TESTS_UTILS_TEST_ALLOCATOR_HPP

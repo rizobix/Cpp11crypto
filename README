@@ -12,29 +12,26 @@ C++11 as a way to:
       - Demonstrate that C++ is really efficient, as much
       	as, or even more than, C
 
-Compiler used: g++ v4.7 and v4.8, under development (http://gcc.gnu.org).
-(gcc48 not yet used with boost)
+Compiler used: g++ v4.7, from Debian/Sid
 Other compiler versions to be determined.
 
-Boost libraries used: 1.49.0. Binary libraries used: test.
+Boost libraries used: 1.53.0. Binary libraries used: test.
 Other library versions to be determined.
-Pending: Check which boost headers used are already included in C++1 version used.
 
 Printing in testing performed via FastFormat (www.fastformat.org)
-Exact minimum version to be determined, using 0.7.1-alpha-7.
+Exact minimum version to be determined, using 0.7.1-alpha-9.
 NOTE: Some patching required to compile under gcc 4.8, included in ff_patch file.
 Underlying library used: StlSoft (ww.stlsoft.org)
-Exact minimum version to be determined, using 1.9.112.
+Exact minimum version to be determined, using 1.9.117.
 
 Code documentation using Doxygen (http://www.stack.nl/~dimitri/doxygen).
-Exact minimum version to be determined, using 1.4.8.
+Exact minimum version to be determined, using 1.8.1.
 
-Other documentation using LaTex. Using LiveTex, as it is available both in Windows
-and GNU/Linux. iMac, to be determined. Editing with TexMaker, available in all
-three OS's.
+Other documentation using LaTex. Using TexLive 2012, as it is available in Windows
+, GNU/Linux. iMac case TBD. 
 
 Code indentation maintained with astyle (http://astyle.sourceforge.net).
-Exact minimum version to be determined, using 2.03beta.
+Exact minimum version to be determined, using 2.01-1.
 Settings found in 'astylerc' file.
 
 Anyone is welcome, but take note of two conditions:

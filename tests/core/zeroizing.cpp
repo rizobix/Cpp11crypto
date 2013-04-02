@@ -45,7 +45,7 @@ namespace cpp11crypto {
     }
 
     BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list ) {
-      fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
+      fastformat::fmtln(std::cout,"Zeroizing vector test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
 
       typedef core::allocator<T,core::policies::DestructorDoesZero,
 			      core::policies::DeallocatorDoesNotZero,
@@ -54,11 +54,11 @@ namespace cpp11crypto {
       boost::random::mt19937 generator;
       boost::random::uniform_int_distribution<T> distributor;
       std::for_each(boost::counting_iterator<unsigned>(1u),
-		    boost::counting_iterator<unsigned>(10u),//00u),
+		    boost::counting_iterator<unsigned>(1000u),
 		    [&](unsigned n)
 		    {
 		      data.push_back(distributor(generator));
-		      std::cout << "d0@" << static_cast<const void *>(&data[0]) << std::endl;
+		      //std::cout << "d0@" << static_cast<const void *>(&data[0]) << std::endl;
 		    });
       data.resize(0);
       std::cout<< "Check before deallocation" << std::endl;
@@ -67,11 +67,11 @@ namespace cpp11crypto {
       std::cout<< "Check after deallocation" << std::endl;
       BOOST_CHECK( data.get_allocator().is_clean() );
 
-      fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
+      fastformat::fmtln(std::cout,"Zeroizing vector test on {0} complete.", typeid(T).name());
     }
 
     BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list ) {
-      fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
+      fastformat::fmtln(std::cout,"Zeroizing list test on {0}:{1} starts...", typeid(T).name(),8*sizeof(T));
 
       typedef core::allocator<T,core::policies::DestructorDoesZero,core::policies::DeallocatorDoesNotZero,core::policies::AllocatorDoesZero,utils::test_allocator> allocator;
       std::list<T,allocator> data;
@@ -84,12 +84,11 @@ namespace cpp11crypto {
       std::cout<< "Check after deallocation" << std::endl;
       BOOST_CHECK( data.get_allocator().is_clean() );
 
-      fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", typeid(T).name());
+      fastformat::fmtln(std::cout,"Zeroizing list test on {0} complete.", typeid(T).name());
     }
 
     namespace {
       class SimpleDerivation : public core::ZeroizingBase<> {};
-      class DualDerivation : public core::ZeroizingBase<>,SimpleDerivation {};
       class VirtualDerivation : public virtual core::ZeroizingBase<> {};
       class DiamondDerivation : public VirtualDerivation,virtual core::ZeroizingBase<> {};
       class ArrayDerivation {
@@ -98,7 +97,7 @@ namespace cpp11crypto {
       private:
 	boost::scoped_array<core::ZeroizingBase<> > pointer;
       };
-      typedef boost::mpl::list<SimpleDerivation,DualDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
+      typedef boost::mpl::list<SimpleDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
     }
 
     BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_base_class, T, zeroizing_derived_list ) {
