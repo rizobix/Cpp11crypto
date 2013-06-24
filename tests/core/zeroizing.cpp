@@ -101,7 +101,6 @@ namespace cpp11crypto {
 
     namespace {
       class SimpleDerivation : public core::ZeroizingBase<> {};
-      class DualDerivation : public core::ZeroizingBase<>,SimpleDerivation {};
       class VirtualDerivation : public virtual core::ZeroizingBase<> {};
       class DiamondDerivation : public VirtualDerivation,virtual core::ZeroizingBase<> {};
       class ArrayDerivation {
@@ -110,7 +109,7 @@ namespace cpp11crypto {
       private:
 	boost::scoped_array<core::ZeroizingBase<> > pointer;
       };
-      typedef boost::mpl::list<SimpleDerivation,DualDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
+      typedef boost::mpl::list<SimpleDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
     }
 
     BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_base_class, T, zeroizing_derived_list ) {

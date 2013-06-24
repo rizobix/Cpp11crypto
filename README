@@ -12,30 +12,23 @@ C++11 as a way to:
       - Demonstrate that C++ is really efficient, as much
       	as, or even more than, C
 
-Compiler used: g++ v4.7.
+Compiler used: g++ v4.8, from Debian/Sid
 Other compiler versions to be determined.
 
-Boost libraries used: 1.52.0. Binary libraries used: test.
+Boost libraries used: 1.53.0. Binary libraries used: test.
 Other library versions to be determined.
-Pending: Check which boost headers used are already included in C++11 version used.
 
 Printing in testing performed via FastFormat (www.fastformat.org)
-Exact minimum version to be determined, using 0.7.1-alpha-9.
-
 Underlying library used: StlSoft (www.stlsoft.org)
-Exact minimum version to be determined, using 1.9.116.
 
-AUxiliary library used for type printing: libcwd 1.0.4 (libcwd.sourceforge.net)
+Auxiliary library used for type printing: libcwd (libcwd.sourceforge.net)
 
 Code documentation using Doxygen (http://www.stack.nl/~dimitri/doxygen).
-Exact minimum version to be determined, using 1.8.1.
 
-Other documentation using LaTex. Using LiveTex 2012, as it is available both in Windows
-and GNU/Linux. iMac, to be determined. Editing with TexMaker, available in all
+Other documentation using LaTex. Using LiveTex 2013. Editing with TexMaker and TexStudio, available in all
 three OS's.
 
 Code indentation maintained with astyle (http://astyle.sourceforge.net).
-Exact minimum version to be determined, using 2.03beta.
 Settings found in 'astylerc' file.
 
 Anyone is welcome, but take note of two conditions:
