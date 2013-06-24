@@ -28,14 +28,15 @@
 #include <algorithm>
 #include <boost/type_traits/is_same.hpp>
 
-#include <libcwd/type_info.h>
 #include <iostream>
+#include <libcwd/type_info.h>
+#include <fastformat/fastformat.hpp>
 
 namespace cpp11crypto {
   namespace core {
     namespace {
       void do_zeroize(void * const start,const size_t len) {
-	std::cout << " ... zeroizing@ " << start << ':' << len << std::endl;
+	fastformat::fmtln(std::cout," ... zeroizing@ {0}:{1}",start,len);
 	const char * const pbegin=static_cast<const char *>(start);
 	const char * const pend = pbegin+len;
       zero_phase:

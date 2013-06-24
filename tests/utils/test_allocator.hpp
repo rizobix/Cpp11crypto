@@ -32,7 +32,7 @@
 
 #include <libcwd/type_info.h>
 
-#include <iostream>
+#include <fastformat/fastformat.hpp>
 
 namespace cpp11crypto {
   namespace utils
@@ -101,15 +101,15 @@ namespace cpp11crypto {
 
 	given_data(size_type s,T *p):allocated(true),size(s),data(p) {
 #ifdef DEBUG_ALLOCATION_POINTERS
-	  using namespace std;
-	  cout << libcwd::type_info_of<given_data>().demangled_name() << ":gd+ " << size <<'@' << static_cast<const void *>(data) << endl;
+	  fastformat::fmtln(std::cout,"{0}:gd+ {1}@",libcwd::type_info_of<given_data>().demangled_name(),
+			    size,static_cast<const void *>(data));
 #endif //DEBUG_ALLOCATION_POINTERS
 	}
 
 	~given_data() {
 #ifdef DEBUG_ALLOCATION_POINTERS
-	  using namespace std;
-	  cout << libcwd::type_info_of<given_data>().demangled_name() << ":gd- " << size <<'@' << static_cast<const void *>(data) << endl;
+	  fastformat::fmtln(std::cout,"{0}:gd- {1}@",libcwd::type_info_of<given_data>().demangled_name(),
+			    size,static_cast<const void *>(data));
 #endif //DEBUG_ALLOCATION_POINTERS
 	  ::operator delete(static_cast<void *>(data));
 	}
@@ -160,8 +160,7 @@ namespace cpp11crypto {
       if (allocated && n==size && p==&data[0]) {
 	allocated=false;
 #ifdef DEBUG_ALLOCATION_POINTERS
-	  using namespace std;
-	  cout << "gd- " << size <<'@' << static_cast<const void *>(data) << endl;
+	fastformat::fmtln(std::cout,"dealloc gd- {1}@",size,static_cast<const void *>(data));
 #endif //DEBUG_ALLOCATION_POINTERS
       }
     }
@@ -171,8 +170,7 @@ namespace cpp11crypto {
     template <typename T> bool test_allocator<T>::is_clean() const noexcept {
       for (const auto& i: given) {
 	if (i->in_use()) {
-	  using namespace std;
-	  cout << " Still used @ " << static_cast<const void *>(i->get()) << endl;
+	  fastformat::fmtln(std::cout," Still used @ {0}",static_cast<const void *>(i->get()));
 	  return false;
 	}
       }
@@ -181,32 +179,36 @@ namespace cpp11crypto {
 
     template <typename T> void test_allocator<T>::deallocate(pointer p, size_type n) noexcept {
 #ifdef DEBUG_ALLOCATIONS
-      using namespace std;
-      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":deallocate " << static_cast<const void *>(p)<< ',' << n << endl;
+      fastformat::fmtln(std::cout,"{0}:deallocate {1},{2}",
+			libcwd::type_info_of<test_allocator<T> >().demangled_name(),
+			static_cast<const void *>(p),n);
 #endif //DEBUG_ALLOCATIONS
       for(auto& i: given) {
 	i->deallocate(p,n);
       }
-      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":deallocated " << static_cast<const void *>(p)<< ',' << n << endl;
 #ifdef DEBUG_ALLOCATIONS
-      cout << "deallocated " << static_cast<const void *>(p)<< ',' << n << endl;
+      fastformat::fmtln(std::cout,"{0}:deallocated {1},{2}",
+			libcwd::type_info_of<test_allocator<T> >().demangled_name(),
+			static_cast<const void *>(p),n);
 #endif //DEBUG_ALLOCATIONS
     }
 
     template <typename T>
     typename test_allocator<T>::pointer test_allocator<T>::allocate(size_type s,test_allocator<void>::const_pointer) {
 #ifdef DEBUG_ALLOCATIONS
-      using namespace std;
-      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":allocate " << s << endl;
+      fastformat::fmtln(std::cout,"{0}:allocate {1}",libcwd::type_info_of<test_allocator<T> >().demangled_name(), s);
 #endif //DEBUG_ALLOCATIONS
       pointer const pt = static_cast<pointer>( ::operator new(s*sizeof(T)) );
 #ifdef DEBUG_ALLOCATIONS
-      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":allocated@ " << static_cast<const void *>(pt) << endl;
+      fastformat::fmtln(std::cout,"{0}:allocated@{1}",libcwd::type_info_of<test_allocator<T> >().demangled_name(),
+			static_cast<const void *>(pt));
 #endif //DEBUG_ALLOCATIONS
       given.push_back(given_datum(new given_data(s,pt)));
 #ifdef DEBUG_ALLOCATIONS
-      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":pushed = " << given.size() << endl;
-      cout << libcwd::type_info_of<test_allocator<T> >().demangled_name() << ":returns = " << static_cast<const void *>(pt) << endl;
+      fastformat::fmtln(std::cout,"{0}:pushed = {1}",libcwd::type_info_of<test_allocator<T> >().demangled_name(),
+			given.size());
+      fastformat::fmtln(std::cout,"{0}:returns = {1}",libcwd::type_info_of<test_allocator<T> >().demangled_name(),
+			static_cast<const void *>(pt));
 #endif //DEBUG_ALLOCATIONS
       return pt;
     }
