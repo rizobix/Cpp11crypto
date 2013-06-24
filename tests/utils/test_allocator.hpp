@@ -99,7 +99,7 @@ namespace cpp11crypto {
 	given_data(const given_data&) noexcept;
 	given_data& operator=(const given_data&) noexcept;
 
-	given_data(size_type s,T *p):allocated(true),size(s),data(p) {
+	given_data(size_type s,T *p):allocated{true},size{s},data{p} {
 #ifdef DEBUG_ALLOCATION_POINTERS
 	  fastformat::fmtln(std::cout,"{0}:gd+ {1}@",libcwd::type_info_of<given_data>().demangled_name(),
 			    size,static_cast<const void *>(data));
@@ -118,7 +118,7 @@ namespace cpp11crypto {
 
 	class const_iterator {
 	public:
-	  const_iterator(const T *p):pointer(p) {}
+	  const_iterator(const T *p):pointer{p} {}
 
 	  bool operator!=(const const_iterator& another) const noexcept {
 	    return pointer != another.pointer;

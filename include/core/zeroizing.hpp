@@ -32,16 +32,20 @@
 #include <libcwd/type_info.h>
 #include <fastformat/fastformat.hpp>
 
+//#define VERBOSE
+
 namespace cpp11crypto {
   namespace core {
     namespace {
       void do_zeroize(void * const start,const size_t len) {
+#ifdef VERBOSE
 	fastformat::fmtln(std::cout," ... zeroizing@ {0}:{1}",start,len);
-	const char * const pbegin=static_cast<const char *>(start);
-	const char * const pend = pbegin+len;
+#endif // VERBOSE
       zero_phase:
 	::std::memset(start,0,len);
       verify_phase:
+	const char * const pbegin=static_cast<const char *>(start);
+	const char * const pend = pbegin+len;
 	if (pend!=::std::find_if(pbegin,pend,[](const char c){return 0!=c;})) {
 	  goto zero_phase;
 	}
@@ -185,8 +189,12 @@ namespace cpp11crypto {
   };
 
 
+  }
+
 }
 
-  }
+#ifdef VERBOSE
+#undef VERBOSE
+#endif // VERBOSE
 
 #endif // CPP11CRYPTO_CORE_ZEROIZING_HPP
