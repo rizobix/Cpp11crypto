@@ -22,18 +22,21 @@
 #ifndef CPP11CRYPTO_ARITH_ALGORITHMS_EUCLID_HPP
 #define CPP11CRYPTO_ARITH_ALGORITHMS_EUCLID_HPP
 
-namespace cpp11crypto {
-  namespace arith {
-    namespace algorithms {
-      // run-time fast algorithms
+namespace cpp11crypto
+{
+namespace arith
+{
+namespace algorithms
+{
+// run-time fast algorithms
 
-      // run-time crypto algorithms excluded, these algorithms should not
-      // be used within encryption and decryption processes
+// run-time crypto algorithms excluded, these algorithms should not
+// be used within encryption and decryption processes
 
-      // compile-time algorithms
+// compile-time algorithms
 
-    }
-  }
+}
+}
 }
 
 #endif // CPP11CRYPTO_ARITH_ALGORITHMS_EUCLID_HPP

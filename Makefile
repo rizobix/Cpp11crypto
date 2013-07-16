@@ -28,13 +28,15 @@ BOOST_TEST_LIBRARIES_COMMAND=$(patsubst %,-lboost_%,$(BOOST_TEST_LIBRARIES))
 
 STLSOFT ?= $(BASE_DIR)/../stlsoft
 FASTFORMAT_ROOT ?= $(BASE_DIR)/../fastformat
-FASTFORMAT_GCC_VERSION ?= gcc47
-FASTFORMAT_COPIED_VERSION ?= gcc47
+FASTFORMAT_GCC_VERSION ?= gcc48
+FASTFORMAT_COPY_VERSION ?= gcc47
 FASTFORMAT_BUILD_ROOT ?= $(FASTFORMAT_ROOT)/build
 FASTFORMAT_BUILD_DIR=$(FASTFORMAT_BUILD_ROOT)/$(FASTFORMAT_GCC_VERSION).unix
+FASTFORMAT_COPY_DIR=$(FASTFORMAT_BUILD_ROOT)/$(FASTFORMAT_COPY_VERSION).unix
 FASTFORMAT_LIB ?= fastformat.0.core.$(FASTFORMAT_GCC_VERSION)
 
-CXX_OPTIONS = -std=c++0x -Wsuggest-attribute=pure -Wsuggest-attribute=const -Wsuggest-attribute=noreturn -pedantic -pedantic-errors -Werror
+REMOVED_WARNINGS= -Wno-unused-local-typedefs -Wno-unused-label
+CXX_OPTIONS = -std=c++11 -Wall -Werror -pedantic -pedantic-errors $(REMOVED_WARNINGS)
 
 HEADERS=include/core/zeroizing.hpp
 .PHONY: all test boost fastformat
@@ -65,6 +67,12 @@ boost:
 	cd $(BOOST_FOLDER) && ./bootstrap.sh --with-libraries=$(BOOST_LIBRARY_LIST) && ./b2
 
 # Patches and builds fastformat libraries
+$(FASTFORMAT_BUILD_DIR): $(FASTFORMAT_COPY_DIR)
+	mkdir $(FASTFORMAT_BUILD_DIR)
+	cp -r $(FASTFORMAT_COPY_DIR)/* $(FASTFORMAT_BUILD_DIR)
+	sed 's/-Wno-unused-value/-Wno-unused-value -Wno-unused-local-typedefs/' $(FASTFORMAT_BUILD_DIR)/makefile | sed 's/gcc47/gcc48/' > $(FASTFORMAT_BUILD_DIR)/tempfile
+	mv $(FASTFORMAT_BUILD_DIR)/tempfile $(FASTFORMAT_BUILD_DIR)/makefile
+
 fastformat: $(FASTFORMAT_BUILD_DIR)
 	cd $(FASTFORMAT_BUILD_DIR) && STLSOFT=$(STLSOFT) make build
 

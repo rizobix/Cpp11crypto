@@ -3,6 +3,7 @@
 *.o
 *.bak
 *core*
+*.orig
 
 doxygen/
 tests/test
