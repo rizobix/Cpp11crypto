@@ -1,7 +1,11 @@
 # Style used in Cpp11crypto
 
 # General
---style=gnu
+--style=attach
 
 # Particular details
+--indent-namespaces
+--indent-col1-comments
 
+# Management
+--recursive
