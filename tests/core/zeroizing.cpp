@@ -40,6 +40,7 @@
 #include <libcwd/type_info.h>
 
 #include "../utils/test_allocator.hpp"
+#include "../utils/test_new_delete.hpp"
 
 namespace cpp11crypto {
     namespace tests {
@@ -47,7 +48,7 @@ namespace cpp11crypto {
                                std::uint8_t,
                                std::uint16_t,
                                std::uint32_t,
-                               std::uint64_t
+	  std::uint64_t
                                >;
 
         constexpr auto start = 0u;
@@ -99,21 +100,24 @@ namespace cpp11crypto {
         }
 
         namespace {
-            class SimpleDerivation : public core::ZeroizingBase {};
-            class VirtualDerivation : public virtual core::ZeroizingBase {};
-            class DiamondDerivation : public VirtualDerivation,virtual core::ZeroizingBase {};
+	  using ZeroizingBase = core::ZeroizingBase<utils::new_delete_checker>;
+            class SimpleDerivation : public ZeroizingBase {};
+            class VirtualDerivation : public virtual ZeroizingBase {};
+            class DiamondDerivation : public VirtualDerivation,virtual ZeroizingBase {};
             class ArrayDerivation {
-                std::array<core::ZeroizingBase,16> zb_array;
+                std::array<ZeroizingBase,16> zb_array;
             };
             typedef boost::mpl::list<SimpleDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
         }
 
-        // TODO : must check output.
         BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_base_class, T, zeroizing_derived_list ) {
             fastformat::fmtln(std::cout,"Zeroizing base class derivation test on {0} starts...",
                               libcwd::type_info_of<T>().demangled_name());
-            std::unique_ptr<T> pointer {new T()};
-            fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
+	    {
+	      std::unique_ptr<T> pointer {new T()};
+	    }
+            BOOST_CHECK( utils::new_delete_checker::is_clean() );
+	    fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
         }
 
     }

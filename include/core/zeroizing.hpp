@@ -99,7 +99,26 @@ namespace cpp11crypto {
 
         };
 
+      namespace {
+	struct standard {
+            static void *get_new(const ::std::size_t size) {
+                return ::operator new(size);
+            }
+            static void do_delete(void * const p,const ::std::size_t size) {
+                ::operator delete(p);
+            }
+
+            static void *get_new_array(const ::std::size_t size) {
+                return ::operator new[](size);
+            }
+            static void do_delete_array(void * const p,const ::std::size_t size) {
+                ::operator delete[](p);
+            }
+	};
+      }
+
         // Zeroizing base templated class
+      template <typename base_operator = standard>
         class ZeroizingBase {
         protected:
             ZeroizingBase()=default;
@@ -108,19 +127,19 @@ namespace cpp11crypto {
             ~ZeroizingBase()=default;
         public:
             static void *operator new(const ::std::size_t size) {
-                return ::operator new(size);
+	      return base_operator::get_new(size);
             }
             static void operator delete(void * const p,const ::std::size_t size) {
                 do_zeroize(p,size);
-                ::operator delete(p);
+		base_operator::do_delete(p,size);
             }
 
             static void *operator new[](const ::std::size_t size) {
-                return ::operator new[](size);
+	      return base_operator::get_new_array(size);
             }
             static void operator delete[](void * const p,const ::std::size_t size) {
                 do_zeroize(p,size);
-                ::operator delete[](p);
+		base_operator::do_delete_array(p,size);
             }
         };
 

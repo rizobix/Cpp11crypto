@@ -75,9 +75,6 @@ namespace cpp11crypto {
                 p->~U();
             }
 
-            // ????? GCC requires it!
-            bool operator!=(test_allocator& other) noexcept {return false;}
-
             // testing part
         public:
             bool is_clean(size_type used) const noexcept;
@@ -94,7 +91,7 @@ namespace cpp11crypto {
                 given_data& operator=(const given_data&)= delete;
 
             public:
-                given_data(size_type s,T *p):allocated {true},size {s},data {p} {
+                given_data(size_type s,T *p):size {s},data {p} {
                 }
 
                 ~given_data() {
@@ -124,7 +121,7 @@ namespace cpp11crypto {
                 void deallocate(pointer p, size_type n) noexcept;
 
             private:
-                bool allocated;
+	      bool allocated{true};
                 const size_type size;
                 T * const data;
             };
