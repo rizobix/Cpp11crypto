@@ -35,7 +35,6 @@
 #include <array>
 #include <memory>
 #include <fastformat/fastformat.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
 #include <libcwd/type_info.h>
 
@@ -44,6 +43,7 @@
 
 namespace cpp11crypto {
     namespace tests {
+
         using zeroizing_list = boost::mpl::list<
                                std::uint8_t,
                                std::uint16_t,
@@ -120,6 +120,7 @@ namespace cpp11crypto {
             BOOST_CHECK( utils::new_delete_checker::is_clean() );
 	    fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
         }
+
 
     }
 
