@@ -26,22 +26,43 @@
 #include <cstring>
 #include <memory>
 #include <algorithm>
+#include <utility>
 
 namespace cpp11crypto {
     namespace core {
-        namespace {
-            void do_zeroize(void * const start,const size_t len) {
-                do {
-                    ::std::memset(start,0,len);
-                } while (
-                    start == ::std::find_if(static_cast<const char *>(start),
-                                            static_cast<const char *>(start)+len,
-                [](const char c) {
-                return 0!=c;
-            })
-            );
-            }
-        }
+      namespace details  {
+	using align_value_type = std::alignment_of<void *>::value_type;
+
+
+	
+	template <align_value_type Align=std::alignment_of<unsigned char>::value>
+	struct zeroizer {
+	  void operator()(void * const start,const size_t len) const;
+	};
+
+	template <align_value_type Align>
+	void zeroizer<Align>::operator()(void * const start,const size_t len) const {
+	    do {
+	      ::std::memset(start,0,len);
+	    } while (
+		 start == ::std::find_if(static_cast<const unsigned char *>(start),
+					 static_cast<const unsigned char *>(start)+len,
+					 [](const unsigned char c) {
+					   return 0!=c;
+					 })
+		 );
+	}
+
+	/*template <>
+	struct zeroizer<void,0> {
+	  void operator()(void * const start,const size_t len) const;
+	  };*/
+      }
+
+
+      template <typename T> void do_zeroize(T * const start,const size_t len) {	
+	details::zeroizer<std::alignment_of<T>::value>()(start,len);
+      }
 
         // Zeroizing class templates
 
@@ -81,7 +102,7 @@ namespace cpp11crypto {
                 "Destructors should not throw");
                 base_allocator::destroy(p);
                 if (nullptr != p) {
-                    do_zeroize(p,sizeof *p);
+		  do_zeroize(p,sizeof *p);
                 }
             }
 
@@ -99,7 +120,6 @@ namespace cpp11crypto {
 
         };
 
-      namespace {
 	struct standard {
             static void *get_new(const ::std::size_t size) {
                 return ::operator new(size);
@@ -115,7 +135,6 @@ namespace cpp11crypto {
                 ::operator delete[](p);
             }
 	};
-      }
 
         // Zeroizing base templated class
       template <typename base_operator = standard>
