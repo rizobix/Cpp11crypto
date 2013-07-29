@@ -27,41 +27,36 @@
 #include <memory>
 #include <algorithm>
 #include <utility>
+#include "utils/aligned_as_pod.hpp"
 
 namespace cpp11crypto {
     namespace core {
       namespace details  {
-	using align_value_type = std::alignment_of<void *>::value_type;
 
-
-	
-	template <align_value_type Align=std::alignment_of<unsigned char>::value>
+	template <typename U>
 	struct zeroizer {
+	  using casted_to = typename utils::aligned_as_pod<U>::type;
 	  void operator()(void * const start,const size_t len) const;
 	};
 
-	template <align_value_type Align>
-	void zeroizer<Align>::operator()(void * const start,const size_t len) const {
+	template <typename U>
+	void zeroizer<U>::operator()(void * const start,const size_t len) const {
 	    do {
-	      ::std::memset(start,0,len);
+	      ::std::uninitialized_fill_n(static_cast<casted_to *>(start),len/sizeof(casted_to),casted_to{});
 	    } while (
-		 start == ::std::find_if(static_cast<const unsigned char *>(start),
-					 static_cast<const unsigned char *>(start)+len,
-					 [](const unsigned char c) {
-					   return 0!=c;
+		 start == ::std::find_if(static_cast<const casted_to *>(start),
+					 static_cast<const casted_to *>(start)+len,
+					 [](const casted_to c) {
+					   return casted_to{} !=c;
 					 })
 		 );
 	}
 
-	/*template <>
-	struct zeroizer<void,0> {
-	  void operator()(void * const start,const size_t len) const;
-	  };*/
       }
 
 
       template <typename T> void do_zeroize(T * const start,const size_t len) {	
-	details::zeroizer<std::alignment_of<T>::value>()(start,len);
+	details::zeroizer<T>()(start,len);
       }
 
         // Zeroizing class templates

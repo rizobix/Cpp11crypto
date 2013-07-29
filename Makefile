@@ -1,4 +1,4 @@
-# Copyright 2011, Juan Antonio Zaratiegui Vallecillo
+# Copyright 2011-2013, Juan Antonio Zaratiegui Vallecillo
 
 #  This file is part of Cpp11crypto.
 
@@ -47,7 +47,7 @@ all:
 clean:
 	@rm -f $(TEST_PROGRAM)
 
-TEST_SOURCES = tests/test.cpp tests/core/zeroizing.cpp
+TEST_SOURCES = tests/test.cpp tests/utils/align_as_pod.cpp tests/core/zeroizing.cpp
 TEST_HEADERS = tests/utils/test_allocator.hpp
 TEST_PROGRAM = tests/test
 TEST_INCLUDES = -Iinclude -I$(BOOST_FOLDER) -I$(STLSOFT)/include -I$(FASTFORMAT_ROOT)/include

@@ -116,6 +116,7 @@ namespace cpp11crypto {
 	    {
 	      std::unique_ptr<T> pointer {new T()};
 	    }
+            fastformat::fmtln(std::cout,"{0}","Check after deallocation");
             BOOST_CHECK( utils::new_delete_checker::is_clean() );
 	    fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
         }

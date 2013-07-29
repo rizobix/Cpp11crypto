@@ -23,9 +23,6 @@
 #define CPP11CRYPTO_TESTS_UTILS_TEST_NEW_DELETE_HPP
 #include <unordered_map>
 #include <cassert>
-#include <fastformat/fastformat.hpp>
-
-#define VERBOSE
 
 namespace cpp11crypto {
     namespace utils {
@@ -44,33 +41,28 @@ namespace cpp11crypto {
 	  static void *add_simple(void *p,const ::std::size_t size) {
 	      assert(simple_map.find(p)==simple_map.end() && array_map.find(p)==array_map.end()); 
 	      simple_map[p]={size,true};	
-	      fastformat::fmtln(std::cout,"Added {0} to simple",p);
 	      return p;
 	  }
 	  static void remove_simple(void *p,const ::std::size_t size) {
 	      assert(simple_map.find(p)!=simple_map.end() && array_map.find(p)==array_map.end()); 
 	      assert(simple_map[p].size==size);
 	      simple_map[p].in_use=false;
-	      fastformat::fmtln(std::cout,"Removed {0} from simple",p);
 	  }
 	  static void *add_array(void *p,const ::std::size_t size) {
 	      assert(simple_map.find(p)==simple_map.end() && array_map.find(p)==array_map.end()); 
 	      assert(array_map[p].size==size);
 	      array_map[p]={size,true};
-	      fastformat::fmtln(std::cout,"Added {0} to array",p);
 	      return p;
 	  }
 	  static void remove_array(void *p,const ::std::size_t size) {
 	      assert(simple_map.find(p)==simple_map.end() && array_map.find(p)!=array_map.end()); 
 	      array_map[p].in_use=false;
-	      fastformat::fmtln(std::cout,"Removed {0} from array",p);
 	  }
 
 	  static bool is_clean() {
 	    bool ok=true;
 	    for (const auto& x : simple_map) {
 	      if (x.second.in_use) {
-		fastformat::fmtln(std::cout,"Simple {0} in use",x.first);
 		ok=false;
 	      }
 	      ::operator delete(x.first);
@@ -79,7 +71,6 @@ namespace cpp11crypto {
 
 	    for (const auto& x : array_map) {
 	      if (x.second.in_use) {
-		fastformat::fmtln(std::cout,"Array {0} in use",x.first);
 		ok=false;
 	      }
 	      ::operator delete[](x.first);
@@ -115,8 +106,5 @@ namespace cpp11crypto {
     }
 }
 
-#ifdef VERBOSE
-#undef VERBOSE
-#endif
 
 #endif // CPP11CRYPTO_TESTS_UTILS_TEST_NEW_DELETE_HPP
