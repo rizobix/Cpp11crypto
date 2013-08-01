@@ -27,24 +27,41 @@ namespace cpp11crypto {
     namespace utils {
       namespace details {
 	using worst_case_type = unsigned char;
+
 	template <typename T,typename U,typename...Rest>
 	struct select_aligned_as_pod;
 
-	template <bool is_same,typename T,typename U,typename...Rest>
+	/// Helper struct for @ref select_aligned_as_pod
+	/// @tparam has_compatible_alignment boolean value signaling if U is aligned compatibly to T
+	/// @tparam T type subject to search
+	/// @tparam U current integral type being compared
+	/// @tparam ...Rest Remaining integral types to compare
+	template <bool has_compatible_alignment,typename T,typename U,typename...Rest>
 	struct selected_pod {
 	  using type = U;
 	};
 
+	/// Partial specialization of @ref select_aligned_as_pod, to continue recursive search
+	/// @tparam T type subject to search
+	/// @tparam U current integral type being compared
+	/// @tparam ...Rest Remaining integral types to compare
 	template <typename T,typename U,typename...Rest>
 	struct selected_pod<false,T,U,Rest...> {
 	  using type = typename select_aligned_as_pod <T,Rest...>::type;
 	};
 
+	/// Partial specialization of @ref select_aligned_as_pod, to terminate recursive search with default alignment as char
+	/// @tparam T type subject to search
+	/// @tparam U current integral type being compared
 	template <typename T,typename U>
 	struct selected_pod<false,T,U> {
 	  using type = worst_case_type; // default case, worst alignment
 	};
 
+	/// Helper struct designed to select the greatest integral type with same alignment
+	/// @tparam T type subject to search
+	/// @tparam U current integral type being compared
+	/// @tparam ...Rest Remaining integral types to compare
 	template <typename T,typename U,typename...Rest>
 	struct select_aligned_as_pod {
 	  using type = typename selected_pod<
@@ -54,12 +71,16 @@ namespace cpp11crypto {
 	
       }
 
+	/// Helper struct designed to select the greatest integral type with same alignment
+	/// @tparam T type subject to search
       template <typename T>
       struct aligned_as_pod {
 	using type = typename details::select_aligned_as_pod<T,
 							     unsigned long long,unsigned long,
 							     unsigned int,unsigned short>::type;
       };
+
+	/// Specialization to catch  the general (void *) case
       template <>
       struct aligned_as_pod<void> {
 	using type = details::worst_case_type; // default case, worst alignment
