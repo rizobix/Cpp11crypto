@@ -26,7 +26,6 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/mpl/list.hpp>
-#include <boost/range/counting_range.hpp>
 #include <vector>
 #include <list>
 #include <algorithm>
@@ -34,6 +33,7 @@
 #include <string>
 #include <array>
 #include <memory>
+#include <numeric>
 #include <fastformat/fastformat.hpp>
 
 #include <libcwd/type_info.h>
@@ -51,8 +51,20 @@ namespace cpp11crypto {
                                std::uint64_t
                                >;
 
-        constexpr auto start = 0u;
-        constexpr auto end = 1000u;
+      struct counted_range {
+        static constexpr auto start = 0u;
+        static constexpr auto end = 1000u;
+        static constexpr auto count = end-start;
+
+	std::array<unsigned,count> range;
+
+	counted_range() {
+	  std::iota(range.begin(),range.end(),start);
+	}
+	
+      };
+      const counted_range test_range;
+
 
         BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list ) {
             fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...",
@@ -63,16 +75,16 @@ namespace cpp11crypto {
             std::vector<T,allocator> data;
             boost::random::mt19937 generator;
             boost::random::uniform_int_distribution<T> distributor;
-            for (const auto i : boost::counting_range(start,end)) {
-                (void)i;
+            for (const auto i : test_range.range) { 
+               (void)i;
                 data.push_back(distributor(generator));
             }
             data.resize(0);
             fastformat::fmtln(std::cout,"{0}","Check before deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(end) );
+            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
             data.shrink_to_fit();
             fastformat::fmtln(std::cout,"{0}","Check after deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(end) );
+            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
             data.get_allocator().reset();
 
             fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
@@ -86,13 +98,13 @@ namespace cpp11crypto {
             std::list<T,allocator> data;
             boost::random::mt19937 generator;
             boost::random::uniform_int_distribution<T> distributor;
-            for (const auto i : boost::counting_range(start,end)) {
+            for (const auto i : test_range.range) { 
                 (void)i;
                 data.push_back(distributor(generator));
             }
             data.resize(0);
             fastformat::fmtln(std::cout,"{0}","Check after deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(end) );
+            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
 
             data.get_allocator().reset();
 
