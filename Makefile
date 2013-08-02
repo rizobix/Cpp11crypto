@@ -39,10 +39,16 @@ REMOVED_WARNINGS= -Wno-unused-local-typedefs -Wno-unused-label
 CXX_OPTIONS = -std=c++11 -Wall -Werror -pedantic -pedantic-errors $(REMOVED_WARNINGS)
 
 HEADERS=include/core/zeroizing.hpp
-.PHONY: all test boost fastformat
+.PHONY: all test boost fastformat astyle doxygen
 
 all:
 	@echo Nothing to do yet.
+
+astyle:
+	@astyle --options=astylerc *.{hpp,cpp}
+
+doxygen:
+	@doxygen
 
 clean:
 	@rm -f $(TEST_PROGRAM)

@@ -48,7 +48,7 @@ namespace cpp11crypto {
                                std::uint8_t,
                                std::uint16_t,
                                std::uint32_t,
-	  std::uint64_t
+                               std::uint64_t
                                >;
 
         constexpr auto start = 0u;
@@ -100,7 +100,7 @@ namespace cpp11crypto {
         }
 
         namespace {
-	  using ZeroizingBase = core::ZeroizingBase<utils::new_delete_checker>;
+            using ZeroizingBase = core::ZeroizingBase<utils::new_delete_checker>;
             class SimpleDerivation : public ZeroizingBase {};
             class VirtualDerivation : public virtual ZeroizingBase {};
             class DiamondDerivation : public VirtualDerivation,virtual ZeroizingBase {};
@@ -113,12 +113,12 @@ namespace cpp11crypto {
         BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_base_class, T, zeroizing_derived_list ) {
             fastformat::fmtln(std::cout,"Zeroizing base class derivation test on {0} starts...",
                               libcwd::type_info_of<T>().demangled_name());
-	    {
-	      std::unique_ptr<T> pointer {new T()};
-	    }
+            {
+                std::unique_ptr<T> pointer {new T()};
+            }
             fastformat::fmtln(std::cout,"{0}","Check after deallocation");
             BOOST_CHECK( utils::new_delete_checker::is_clean() );
-	    fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
+            fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
         }
 
 

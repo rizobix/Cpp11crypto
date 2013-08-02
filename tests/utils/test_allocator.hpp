@@ -121,7 +121,7 @@ namespace cpp11crypto {
                 void deallocate(pointer p, size_type n) noexcept;
 
             private:
-	      bool allocated{true};
+                bool allocated {true};
                 const size_type size;
                 T * const data;
             };

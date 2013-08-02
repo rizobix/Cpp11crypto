@@ -32,19 +32,32 @@
 namespace cpp11crypto {
     namespace tests {
 
+        struct dummy {};
+
         using aligning_list = boost::mpl::list<
-	  std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t,
-	  float,double,long double, void *, char * >;
+                              std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t,
+                              float,double,long double, void *, char *, dummy>;
 
         BOOST_AUTO_TEST_CASE_TEMPLATE (aligning_as_an_integral, T, aligning_list ) {
-	  using selected_type = typename utils::aligned_as_integral<T>::type;
+            using selected_type = typename utils::aligned_as_integral<T>::type;
             fastformat::fmtln(std::cout,"Alignment test {0}({1}) selects {2}({3}).",
-			      libcwd::type_info_of<T>().demangled_name(),
-			      sizeof(T),
-			      libcwd::type_info_of<selected_type>().demangled_name(),
-			      sizeof(selected_type)
-			      );
+                              libcwd::type_info_of<T>().demangled_name(),
+                              sizeof(T),
+                              libcwd::type_info_of<selected_type>().demangled_name(),
+                              sizeof(selected_type)
+                             );
             BOOST_CHECK( 0 == sizeof(T) % sizeof(selected_type) );
-	}
+        }
+        using aligning_void = boost::mpl::list< void >;
+
+        BOOST_AUTO_TEST_CASE_TEMPLATE (aligning_void_as_an_integral, T, aligning_void ) {
+            using selected_type = typename utils::aligned_as_integral<T>::type;
+            fastformat::fmtln(std::cout,"Alignment test {0} selects {1}({2}).",
+                              libcwd::type_info_of<T>().demangled_name(),
+                              libcwd::type_info_of<selected_type>().demangled_name(),
+                              sizeof(selected_type)
+                             );
+            BOOST_CHECK( sizeof(char) == sizeof(selected_type) );
+        }
     }
 }

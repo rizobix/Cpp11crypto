@@ -27,59 +27,63 @@
 
 namespace cpp11crypto {
     namespace utils {
-      namespace details {
-	using worst_case_type = unsigned char;
+        namespace details {
+            using worst_case_type = unsigned char;
 
-	template <bool accepted,typename T,typename U> struct test_selection {
-	  static_assert(0==(alignof(T)%alignof(U)),"vaya hombre");	  
-	};
-	template <typename T,typename U> struct test_selection<false,T,U> {
-	};
+            /// Helper struct designed to select a type in a standard type trait style
+            /// @tparam T type subject to select
+            template<typename T> struct identity {
+                /// Selected type, same as template type
+                using type = T;
+            };
 
-	template<typename T> struct identity {
-	  using type = T;
-	};
+            /// Helper struct designed to select the greatest integral type with same alignment
+            /// @tparam T type subject to search
+            /// @tparam U current integral type being compared
+            /// @tparam ...Rest Remaining integral types to compare
+            template <typename T,typename U,typename...Rest>
+            struct select_aligned_as_integral {
+                /// Condition used to select type
+                constexpr static auto condition = 0 == (alignof(T) % alignof(U));
+                /// Selected type
+                using type = typename std::conditional< condition,
+                      identity<U>,
+                      select_aligned_as_integral<T,Rest...>
+                      >::type::type;
+            };
 
-	/// Helper struct designed to select the greatest integral type with same alignment
-	/// @tparam T type subject to search
-	/// @tparam U current integral type being compared
-	/// @tparam ...Rest Remaining integral types to compare
-	template <typename T,typename U,typename...Rest>
-	struct select_aligned_as_integral {
-	  constexpr static auto condition = 0 == (alignof(T) % alignof(U));
-	  using type = typename std::conditional< condition,
-						  identity<U>,
-						  select_aligned_as_integral<T,Rest...>
-						  >::type::type;
-	  test_selection<condition,T,type> dummy;
-	};
-	
-	template <typename T,typename U>
-	struct select_aligned_as_integral<T,U> {
-	  constexpr static auto condition = 0 == (alignof(T) % alignof(U));
-	  using type = typename std::conditional< condition,
-						  U,
-						  worst_case_type
-						  >::type;
-	  test_selection<condition,T,type> dummy;
-	};
-	
-      }
+            /// Partial specialization to end recursion
+            /// @tparam T type subject to search
+            /// @tparam U current integral type being compared
+            template <typename T,typename U>
+            struct select_aligned_as_integral<T,U> {
+                /// Condition used to select type
+                constexpr static auto condition = 0 == (alignof(T) % alignof(U));
+                /// Selected type
+                using type = typename std::conditional< condition,
+                      U,
+                      worst_case_type
+                      >::type;
+            };
 
-	/// Helper struct designed to select the greatest integral type with same alignment
-	/// @tparam T type subject to search
-      template <typename T>
-      struct aligned_as_integral {
-	using type = typename details::select_aligned_as_integral<T,
-							     unsigned long long,unsigned long,
-							     unsigned int,unsigned short>::type;
-      };
+        }
 
-	/// Specialization to catch  the general case, arising from a (void *) pointer
-      template <>
-      struct aligned_as_integral<void> {
-	using type = details::worst_case_type; // default case, worst alignment
-      };
+        /// Helper struct designed to select the greatest integral type with same alignment
+        /// @tparam T type subject to search
+        template <typename T>
+        struct aligned_as_integral {
+            /// Selected type
+            using type = typename details::select_aligned_as_integral<T,
+                  unsigned long long,unsigned long,
+                  unsigned int,unsigned short>::type;
+        };
+
+        /// Specialization to catch  the general case, arising from a (void *) pointer
+        template <>
+        struct aligned_as_integral<void> {
+            /// Selected type
+            using type = details::worst_case_type; // default case, worst alignment
+        };
 
     }
 

@@ -26,83 +26,83 @@
 
 namespace cpp11crypto {
     namespace utils {
-      namespace {
-	  struct pointer_data {
-	    size_t size;
-	    bool in_use;
-	  };
-	  using Map = std::unordered_map<void *,pointer_data>;
+        namespace {
+            struct pointer_data {
+                size_t size;
+                bool in_use;
+            };
+            using Map = std::unordered_map<void *,pointer_data>;
 
-	template <bool DUMMY=true> struct Maps {
+            template <bool DUMMY=true> struct Maps {
 
-	  static Map simple_map;
-	  static Map array_map;
+                static Map simple_map;
+                static Map array_map;
 
-	  static void *add_simple(void *p,const ::std::size_t size) {
-	      assert(simple_map.find(p)==simple_map.end() && array_map.find(p)==array_map.end()); 
-	      simple_map[p]={size,true};	
-	      return p;
-	  }
-	  static void remove_simple(void *p,const ::std::size_t size) {
-	      assert(simple_map.find(p)!=simple_map.end() && array_map.find(p)==array_map.end()); 
-	      assert(simple_map[p].size==size);
-	      simple_map[p].in_use=false;
-	  }
-	  static void *add_array(void *p,const ::std::size_t size) {
-	      assert(simple_map.find(p)==simple_map.end() && array_map.find(p)==array_map.end()); 
-	      assert(array_map[p].size==size);
-	      array_map[p]={size,true};
-	      return p;
-	  }
-	  static void remove_array(void *p,const ::std::size_t size) {
-	      assert(simple_map.find(p)==simple_map.end() && array_map.find(p)!=array_map.end()); 
-	      array_map[p].in_use=false;
-	  }
+                static void *add_simple(void *p,const ::std::size_t size) {
+                    assert(simple_map.find(p)==simple_map.end() && array_map.find(p)==array_map.end());
+                    simple_map[p]= {size,true};
+                    return p;
+                }
+                static void remove_simple(void *p,const ::std::size_t size) {
+                    assert(simple_map.find(p)!=simple_map.end() && array_map.find(p)==array_map.end());
+                    assert(simple_map[p].size==size);
+                    simple_map[p].in_use=false;
+                }
+                static void *add_array(void *p,const ::std::size_t size) {
+                    assert(simple_map.find(p)==simple_map.end() && array_map.find(p)==array_map.end());
+                    assert(array_map[p].size==size);
+                    array_map[p]= {size,true};
+                    return p;
+                }
+                static void remove_array(void *p,const ::std::size_t size) {
+                    assert(simple_map.find(p)==simple_map.end() && array_map.find(p)!=array_map.end());
+                    array_map[p].in_use=false;
+                }
 
-	  static bool is_clean() {
-	    bool ok=true;
-	    for (const auto& x : simple_map) {
-	      if (x.second.in_use) {
-		ok=false;
-	      }
-	      ::operator delete(x.first);
-	    }
-	    simple_map.clear();
+                static bool is_clean() {
+                    bool ok=true;
+                    for (const auto& x : simple_map) {
+                        if (x.second.in_use) {
+                            ok=false;
+                        }
+                        ::operator delete(x.first);
+                    }
+                    simple_map.clear();
 
-	    for (const auto& x : array_map) {
-	      if (x.second.in_use) {
-		ok=false;
-	      }
-	      ::operator delete[](x.first);
-	    }
-	    array_map.clear();
+                    for (const auto& x : array_map) {
+                        if (x.second.in_use) {
+                            ok=false;
+                        }
+                        ::operator delete[](x.first);
+                    }
+                    array_map.clear();
 
-	    return ok;
-	  }
-	};
+                    return ok;
+                }
+            };
 
-	template <bool DUMMY> Map Maps<DUMMY>::simple_map;
-	template <bool DUMMY> Map Maps<DUMMY>::array_map;
-      }
-      struct new_delete_checker {
+            template <bool DUMMY> Map Maps<DUMMY>::simple_map;
+            template <bool DUMMY> Map Maps<DUMMY>::array_map;
+        }
+        struct new_delete_checker {
 
             static void *get_new(const ::std::size_t size) {
-	      return Maps<true>::add_simple(::operator new(size),size);
+                return Maps<true>::add_simple(::operator new(size),size);
             }
             static void do_delete(void * const p,const ::std::size_t size) {
-	      Maps<true>::remove_simple(p,size);
+                Maps<true>::remove_simple(p,size);
             }
 
             static void *get_new_array(const ::std::size_t size) {
-	      return Maps<true>::add_array(::operator new[](size),size);
+                return Maps<true>::add_array(::operator new[](size),size);
             }
             static void do_delete_array(void * const p,const ::std::size_t size) {
-	      Maps<true>::remove_array(p,size);
+                Maps<true>::remove_array(p,size);
             }
-	static bool is_clean() {
-	  return Maps<true>::is_clean();
-	}
-      };
+            static bool is_clean() {
+                return Maps<true>::is_clean();
+            }
+        };
     }
 }
 
