@@ -17,9 +17,9 @@
    If not, see <http://www.gnu.org/licenses/>.
 **/
 
-// tests/core/aligned_as_pod.cpp - Tests utils/aligned_as_pod.hpp
+// tests/core/aligned_as_integral.cpp - Tests utils/aligned_as_integral.hpp
 
-#include "utils/aligned_as_pod.hpp"
+#include "utils/aligned_as_integral.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
@@ -36,8 +36,8 @@ namespace cpp11crypto {
 	  std::uint8_t,std::uint16_t,std::uint32_t,std::uint64_t,
 	  float,double,long double, void *, char * >;
 
-        BOOST_AUTO_TEST_CASE_TEMPLATE (aligning_as_a_pod, T, aligning_list ) {
-	  using selected_type = typename utils::aligned_as_pod<T>::type;
+        BOOST_AUTO_TEST_CASE_TEMPLATE (aligning_as_an_integral, T, aligning_list ) {
+	  using selected_type = typename utils::aligned_as_integral<T>::type;
             fastformat::fmtln(std::cout,"Alignment test {0}({1}) selects {2}({3}).",
 			      libcwd::type_info_of<T>().demangled_name(),
 			      sizeof(T),

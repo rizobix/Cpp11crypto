@@ -47,7 +47,7 @@ all:
 clean:
 	@rm -f $(TEST_PROGRAM)
 
-TEST_SOURCES = tests/test.cpp tests/utils/aligned_as_pod.cpp tests/core/zeroizing.cpp
+TEST_SOURCES = tests/test.cpp tests/utils/aligned_as_integral.cpp tests/core/zeroizing.cpp
 TEST_HEADERS = tests/utils/test_allocator.hpp
 TEST_PROGRAM = tests/test
 TEST_INCLUDES = -Iinclude -I$(BOOST_FOLDER) -I$(STLSOFT)/include -I$(FASTFORMAT_ROOT)/include

@@ -28,7 +28,7 @@
 #include <memory>
 #include <algorithm>
 #include <utility>
-#include "utils/aligned_as_pod.hpp"
+#include "utils/aligned_as_integral.hpp"
 
 namespace cpp11crypto {
     namespace core {
@@ -38,7 +38,7 @@ namespace cpp11crypto {
 	/// @tparam U type of the objects that resided originally 
 	template <typename U>
 	struct zeroizer {
-	  using casted_to = typename utils::aligned_as_pod<U>::type;
+	  using casted_to = typename utils::aligned_as_integral<U>::type;
 	  void operator()(void * const start,const size_t len) const;
 	};
 
