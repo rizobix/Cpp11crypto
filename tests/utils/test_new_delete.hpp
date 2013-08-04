@@ -1,5 +1,5 @@
 /**
-   Copyright 2011-2013, Juan Antonio Zaratiegui Vallecillo
+   Copyright 2013, Juan Antonio Zaratiegui Vallecillo
 
    This file is part of Cpp11crypto.
 

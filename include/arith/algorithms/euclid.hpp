@@ -22,16 +22,30 @@
 #ifndef CPP11CRYPTO_ARITH_ALGORITHMS_EUCLID_HPP
 #define CPP11CRYPTO_ARITH_ALGORITHMS_EUCLID_HPP
 
+#include <tuple>
+
 namespace cpp11crypto {
     namespace arith {
         namespace algorithms {
-            // run-time fast algorithms
+	  namespace euclid {
 
-            // run-time crypto algorithms excluded, these algorithms should not
-            // be used within encryption and decryption processes
+	    template <typename T>
+	    constexpr T gcd(T a, T b) {
+	      return b==T{} ? a : gcd(b, a%b);
+	    }
 
-            // compile-time algorithms
+	    template <typename T>
+	    std::tuple<T,T> extended_gcd(T a, T b) {
+	      if (b==T{}) {
+		return {T{}+1,T{}};
+	      }
+	      const T q = a/b;
+	      const T r = a%b;
+	      const std::tuple<T,T> previous = extended_gcd(b,r);
+	      return {std::get<1>(previous),std::get<0>(previous)-q*std::get<1>(previous)};
+	    }
 
+	  }
         }
     }
 }

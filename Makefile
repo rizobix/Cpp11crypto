@@ -38,7 +38,10 @@ FASTFORMAT_LIB ?= fastformat.0.core.$(FASTFORMAT_GCC_VERSION)
 REMOVED_WARNINGS= -Wno-unused-local-typedefs -Wno-unused-label
 CXX_OPTIONS = -std=c++11 -Wall -Werror -pedantic -pedantic-errors $(REMOVED_WARNINGS)
 
-HEADERS=include/core/zeroizing.hpp
+HEADERS = include/core/zeroizing.hpp 
+HEADERS += include/utils/aligned_as_integral.hpp
+HEADERS += include/arith/algorithms/euclid.hpp
+
 .PHONY: all test boost fastformat astyle doxygen
 
 all:
@@ -53,8 +56,13 @@ doxygen:
 clean:
 	@rm -f $(TEST_PROGRAM)
 
-TEST_SOURCES = tests/test.cpp tests/utils/aligned_as_integral.cpp tests/core/zeroizing.cpp
-TEST_HEADERS = tests/utils/test_allocator.hpp
+TEST_SOURCES = tests/test.cpp
+TEST_SOURCES += tests/utils/aligned_as_integral.cpp
+TEST_SOURCES += tests/core/zeroizing.cpp
+TEST_SOURCES += tests/arith/algorithms/euclid.cpp
+
+TEST_HEADERS = tests/utils/test_allocator.hpp tests/utils/test_new_delete.hpp
+
 TEST_PROGRAM = tests/test
 TEST_INCLUDES = -Iinclude -I$(BOOST_FOLDER) -I$(STLSOFT)/include -I$(FASTFORMAT_ROOT)/include
 TEST_LIBRARIES = -lcwd -L$(BOOST_LIBRARY_FOLDER) $(BOOST_TEST_LIBRARIES_COMMAND) -L$(FASTFORMAT_ROOT)/lib -l$(FASTFORMAT_LIB)
