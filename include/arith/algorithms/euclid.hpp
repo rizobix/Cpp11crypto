@@ -37,12 +37,12 @@ namespace cpp11crypto {
 	    template <typename T>
 	    std::tuple<T,T> extended_gcd(T a, T b) {
 	      if (b==T{}) {
-		return {T{}+1,T{}};
+		return std::tuple<T,T>(T{}+1,T{});
 	      }
 	      const T q = a/b;
 	      const T r = a%b;
 	      const std::tuple<T,T> previous = extended_gcd(b,r);
-	      return {std::get<1>(previous),std::get<0>(previous)-q*std::get<1>(previous)};
+	      return std::tuple<T,T>(std::get<1>(previous),std::get<0>(previous)-q*std::get<1>(previous));
 	    }
 
 	  }

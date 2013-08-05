@@ -39,99 +39,47 @@
 #include <libcwd/type_info.h>
 
 
-/*namespace cpp11crypto {
+namespace cpp11crypto {
     namespace tests {
 
-        using zeroizing_list = boost::mpl::list<
-                               std::uint8_t,
-                               std::uint16_t,
-                               std::uint32_t,
-                               std::uint64_t
-                               >;
+      template <typename T,T A, T B> struct compileTime {
+	T get_a() const {return A;}
+	T get_b() const {return B;}
 
-      struct counted_range {
-        static constexpr auto start = 0u;
-        static constexpr auto end = 1000u;
-        static constexpr auto count = end-start;
-
-	std::array<unsigned,count> range;
-
-	counted_range() {
-	  std::iota(range.begin(),range.end(),start);
-	}
-	
+	std::array<unsigned char,arith::algorithms::euclid::gcd(A,B)> arr_gcd;
       };
-      const counted_range test_range;
 
 
-        BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list ) {
-            fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...",
+      using gcd_list = boost::mpl::list<
+	compileTime<int,9,6>,
+	compileTime<int,7,5>,
+	compileTime<int,1440,52>,
+	compileTime<int,511,1347>,
+	compileTime<unsigned,9,6>,
+	compileTime<unsigned,7,5>,
+	compileTime<unsigned,1440,52>,
+	compileTime<unsigned,511,1347>
+	>;
+
+      BOOST_AUTO_TEST_CASE_TEMPLATE (gcd_test, T, gcd_list ) {
+            fastformat::fmtln(std::cout,"(E)GCD test on {0}:{1},{2} starts...",
                               libcwd::type_info_of<T>().demangled_name(),
-                              8*sizeof(T));
+                              T().get_a(),T().get_b());
 
-            using allocator = core::allocator<T,utils::test_allocator>;
-            std::vector<T,allocator> data;
-            boost::random::mt19937 generator;
-            boost::random::uniform_int_distribution<T> distributor;
-            for (const auto i : test_range.range) { 
-               (void)i;
-                data.push_back(distributor(generator));
-            }
-            data.resize(0);
-            fastformat::fmtln(std::cout,"{0}","Check before deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
-            data.shrink_to_fit();
-            fastformat::fmtln(std::cout,"{0}","Check after deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
-            data.get_allocator().reset();
+	    auto a=T().get_a()+1;
+	    auto b=T().get_b()+1;
 
-            fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
+	    const auto rs=arith::algorithms::euclid::gcd(--a,--b);
+	    const auto ers=arith::algorithms::euclid::extended_gcd(a,b);
+
+            fastformat::fmtln(std::cout,"GCD on RT gives {0}",rs);
+            BOOST_CHECK( rs == T().arr_gcd.size() );
+            fastformat::fmtln(std::cout,"(E)GCD on RT gives {0},{1}",std::get<0>(ers),std::get<1>(ers));
+            BOOST_CHECK( (rs == a*std::get<0>(ers)+b*std::get<1>(ers)) );
+
+            fastformat::fmtln(std::cout,"GCD test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
         }
-
-        BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_list_test, T, zeroizing_list ) {
-            fastformat::fmtln(std::cout,"Zeroizing test on {0}:{1} starts...",
-                              libcwd::type_info_of<T>().demangled_name(),8*sizeof(T));
-
-            using allocator = core::allocator<T,utils::test_allocator>;
-            std::list<T,allocator> data;
-            boost::random::mt19937 generator;
-            boost::random::uniform_int_distribution<T> distributor;
-            for (const auto i : test_range.range) { 
-                (void)i;
-                data.push_back(distributor(generator));
-            }
-            data.resize(0);
-            fastformat::fmtln(std::cout,"{0}","Check after deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
-
-            data.get_allocator().reset();
-
-            fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
-        }
-
-        namespace {
-            using ZeroizingBase = core::ZeroizingBase<utils::new_delete_checker>;
-            class SimpleDerivation : public ZeroizingBase {};
-            class VirtualDerivation : public virtual ZeroizingBase {};
-            class DiamondDerivation : public VirtualDerivation,virtual ZeroizingBase {};
-            class ArrayDerivation {
-                std::array<ZeroizingBase,16> zb_array;
-            };
-            typedef boost::mpl::list<SimpleDerivation,DiamondDerivation,ArrayDerivation> zeroizing_derived_list;
-        }
-
-        BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_base_class, T, zeroizing_derived_list ) {
-            fastformat::fmtln(std::cout,"Zeroizing base class derivation test on {0} starts...",
-                              libcwd::type_info_of<T>().demangled_name());
-            {
-                std::unique_ptr<T> pointer {new T()};
-            }
-            fastformat::fmtln(std::cout,"{0}","Check after deallocation");
-            BOOST_CHECK( utils::new_delete_checker::is_clean() );
-            fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
-        }
-
 
     }
 
-    }*/
+}
