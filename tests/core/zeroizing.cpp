@@ -51,19 +51,8 @@ namespace cpp11crypto {
                                std::uint64_t
                                >;
 
-      struct counted_range {
-        static constexpr auto start = 0u;
-        static constexpr auto end = 1000u;
-        static constexpr auto count = end-start;
+        static constexpr auto test_count = 1000u;
 
-	std::array<unsigned,count> range;
-
-	counted_range() {
-	  std::iota(range.begin(),range.end(),start);
-	}
-	
-      };
-      const counted_range test_range;
 
 
         BOOST_AUTO_TEST_CASE_TEMPLATE (zeroizing_vector_test, T, zeroizing_list ) {
@@ -75,16 +64,15 @@ namespace cpp11crypto {
             std::vector<T,allocator> data;
             boost::random::mt19937 generator;
             boost::random::uniform_int_distribution<T> distributor;
-            for (const auto i : test_range.range) { 
-               (void)i;
-                data.push_back(distributor(generator));
-            }
+            std::generate_n(std::back_inserter(data),test_count,[&]() {
+                return distributor(generator);
+            });
             data.resize(0);
             fastformat::fmtln(std::cout,"{0}","Check before deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
+            BOOST_CHECK( data.get_allocator().is_clean(test_count) );
             data.shrink_to_fit();
             fastformat::fmtln(std::cout,"{0}","Check after deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
+            BOOST_CHECK( data.get_allocator().is_clean(test_count) );
             data.get_allocator().reset();
 
             fastformat::fmtln(std::cout,"Zeroizing test on {0} complete.", libcwd::type_info_of<T>().demangled_name());
@@ -98,13 +86,12 @@ namespace cpp11crypto {
             std::list<T,allocator> data;
             boost::random::mt19937 generator;
             boost::random::uniform_int_distribution<T> distributor;
-            for (const auto i : test_range.range) { 
-                (void)i;
-                data.push_back(distributor(generator));
-            }
+            std::generate_n(std::back_inserter(data),test_count,[&]() {
+                return distributor(generator);
+            });
             data.resize(0);
             fastformat::fmtln(std::cout,"{0}","Check after deallocation");
-            BOOST_CHECK( data.get_allocator().is_clean(counted_range::end) );
+            BOOST_CHECK( data.get_allocator().is_clean(test_count) );
 
             data.get_allocator().reset();
 

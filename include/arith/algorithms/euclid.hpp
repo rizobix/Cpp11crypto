@@ -27,25 +27,25 @@
 namespace cpp11crypto {
     namespace arith {
         namespace algorithms {
-	  namespace euclid {
+            namespace euclid {
 
-	    template <typename T>
-	    constexpr T gcd(T a, T b) {
-	      return b==T{} ? a : gcd(b, a%b);
-	    }
+                template <typename T>
+                constexpr T gcd(T a, T b) {
+                    return b==T {} ? a : gcd(b, a%b);
+                }
 
-	    template <typename T>
-	    std::tuple<T,T> extended_gcd(T a, T b) {
-	      if (b==T{}) {
-		return std::tuple<T,T>(T{}+1,T{});
-	      }
-	      const T q = a/b;
-	      const T r = a%b;
-	      const std::tuple<T,T> previous = extended_gcd(b,r);
-	      return std::tuple<T,T>(std::get<1>(previous),std::get<0>(previous)-q*std::get<1>(previous));
-	    }
+                template <typename T>
+                std::tuple<T,T> extended_gcd(T a, T b) {
+                    if (b==T {}) {
+                        return std::tuple<T,T>(T {}+1,T {});
+                    }
+                    const T q = a/b;
+                    const T r = a%b;
+                    const std::tuple<T,T> previous = extended_gcd(b,r);
+                    return std::tuple<T,T>(std::get<1>(previous),std::get<0>(previous)-q*std::get<1>(previous));
+                }
 
-	  }
+            }
         }
     }
 }

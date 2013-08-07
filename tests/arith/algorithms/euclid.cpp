@@ -42,35 +42,39 @@
 namespace cpp11crypto {
     namespace tests {
 
-      template <typename T,T A, T B> struct compileTime {
-	T get_a() const {return A;}
-	T get_b() const {return B;}
+        template <typename T,T A, T B> struct compileTime {
+            T get_a() const {
+                return A;
+            }
+            T get_b() const {
+                return B;
+            }
 
-	std::array<unsigned char,arith::algorithms::euclid::gcd(A,B)> arr_gcd;
-      };
+            std::array<unsigned char,arith::algorithms::euclid::gcd(A,B)> arr_gcd;
+        };
 
 
-      using gcd_list = boost::mpl::list<
-	compileTime<int,9,6>,
-	compileTime<int,7,5>,
-	compileTime<int,1440,52>,
-	compileTime<int,511,1347>,
-	compileTime<unsigned,9,6>,
-	compileTime<unsigned,7,5>,
-	compileTime<unsigned,1440,52>,
-	compileTime<unsigned,511,1347>
-	>;
+        using gcd_list = boost::mpl::list<
+                         compileTime<int,9,6>,
+                         compileTime<int,7,5>,
+                         compileTime<int,1440,52>,
+                         compileTime<int,511,1347>,
+                         compileTime<unsigned,9,6>,
+                         compileTime<unsigned,7,5>,
+                         compileTime<unsigned,1440,52>,
+                         compileTime<unsigned,511,1347>
+                         >;
 
-      BOOST_AUTO_TEST_CASE_TEMPLATE (gcd_test, T, gcd_list ) {
+        BOOST_AUTO_TEST_CASE_TEMPLATE (gcd_test, T, gcd_list ) {
             fastformat::fmtln(std::cout,"(E)GCD test on {0}:{1},{2} starts...",
                               libcwd::type_info_of<T>().demangled_name(),
                               T().get_a(),T().get_b());
 
-	    auto a=T().get_a()+1;
-	    auto b=T().get_b()+1;
+            auto a=T().get_a()+1;
+            auto b=T().get_b()+1;
 
-	    const auto rs=arith::algorithms::euclid::gcd(--a,--b);
-	    const auto ers=arith::algorithms::euclid::extended_gcd(a,b);
+            const auto rs=arith::algorithms::euclid::gcd(--a,--b);
+            const auto ers=arith::algorithms::euclid::extended_gcd(a,b);
 
             fastformat::fmtln(std::cout,"GCD on RT gives {0}",rs);
             BOOST_CHECK( rs == T().arr_gcd.size() );
