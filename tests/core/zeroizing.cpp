@@ -23,8 +23,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
 #include <boost/mpl/list.hpp>
 #include <vector>
 #include <list>
@@ -34,6 +32,7 @@
 #include <array>
 #include <memory>
 #include <numeric>
+#include <random>
 #include <fastformat/fastformat.hpp>
 
 #include <libcwd/type_info.h>
@@ -62,8 +61,8 @@ namespace cpp11crypto {
 
             using allocator = core::allocator<T,utils::test_allocator>;
             std::vector<T,allocator> data;
-            boost::random::mt19937 generator;
-            boost::random::uniform_int_distribution<T> distributor;
+            std::mt19937 generator;
+            std::uniform_int_distribution<T> distributor;
             std::generate_n(std::back_inserter(data),test_count,[&]() {
                 return distributor(generator);
             });
@@ -84,8 +83,8 @@ namespace cpp11crypto {
 
             using allocator = core::allocator<T,utils::test_allocator>;
             std::list<T,allocator> data;
-            boost::random::mt19937 generator;
-            boost::random::uniform_int_distribution<T> distributor;
+            std::mt19937 generator;
+            std::uniform_int_distribution<T> distributor;
             std::generate_n(std::back_inserter(data),test_count,[&]() {
                 return distributor(generator);
             });
